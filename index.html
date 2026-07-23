@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2D5BFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="학교 교육과정 편제표를 올리고 희망 학과를 고르면, 그 학교 선택 구조에 맞춰 선택과목을 추천합니다. 서버 없이 브라우저에서만 동작합니다.">
+<title>학생부 로드맵 — 선택과목 추천</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F6F8; --panel:#FFFFFF; --ink:#1A1D23; --sub:#5A6472; --line:#E3E6EB;
+  --pri:#2D5BFF; --amber:#F59E0B; --green:#178A4C; --danger:#D7263D; --warn:#C77800;
+  --r:12px; font-size:15px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+.mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+header{background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.hwrap{max-width:1080px;margin:0 auto;padding:13px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.logo svg{display:block}
+.logo .nm{font-weight:700;font-size:1.15rem;letter-spacing:-.02em}
+.logo .nm small{display:block;font-weight:500;font-size:.66rem;color:var(--sub);letter-spacing:.04em}
+main{max-width:1080px;margin:0 auto;padding:24px 20px 90px}
+h2{font-size:1.2rem;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+.lede{color:var(--sub);margin-bottom:18px;font-size:.92rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:9px 16px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer;transition:filter .15s}
+.btn:hover{filter:brightness(.96)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff}
+.btn.sm{padding:5px 11px;font-size:.8rem}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.74rem;font-weight:600;border:1px solid var(--line);color:var(--sub);background:var(--paper)}
+.tag.blue{color:var(--pri);border-color:#C8D4FF;background:#EEF2FF}
+.tag.amber{color:#8a5a00;border-color:#F3DDB0;background:#FFF7E6}
+.tag.green{color:var(--green);border-color:#BFE3CE;background:#EAF7EF}
+.tag.red{color:var(--danger);border-color:#F2C2CA;background:#FDEEF0}
+.muted{color:var(--sub)} .small{font-size:.82rem}
+.status{font-size:.85rem;padding:10px 14px;border-radius:9px;margin-top:12px;display:none}
+.status.show{display:block}
+.status.err{background:#FDEEF0;color:var(--danger)}
+.status.ok{background:#EAF7EF;color:var(--green)}
+.status.info{background:#EEF2FF;color:var(--pri)}
+.bar{height:8px;border-radius:4px;background:var(--paper);overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;border-radius:4px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* 스텝퍼 */
+.steps{display:flex;gap:0;margin:0 0 22px;flex-wrap:wrap;align-items:center}
+.step{display:flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid var(--line);background:var(--panel);border-radius:99px;font-size:.85rem;font-weight:600;color:var(--sub);cursor:pointer}
+.step .n{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--paper);border:1px solid var(--line);font-size:.72rem}
+.step.now{border-color:var(--pri);color:var(--pri);background:#EEF2FF}
+.step.now .n{background:var(--pri);border-color:var(--pri);color:#fff}
+.step.done{border-color:var(--green);color:var(--green);background:#EAF7EF}
+.step.done .n{background:var(--green);border-color:var(--green);color:#fff}
+.sArrow{width:22px;height:1px;background:var(--line)}
+section{display:none} section.on{display:block}
+
+/* 업로드 */
+.drop{border:2px dashed var(--line);border-radius:var(--r);background:var(--panel);padding:36px 18px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.drop.over{border-color:var(--pri);background:#EEF2FF}
+.drop b{font-size:1.02rem}
+.orRow{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--sub);font-size:.8rem}
+.orRow::before,.orRow::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* 과목 사전 체크 */
+.grpBox{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden;background:var(--panel)}
+.grpHead{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--paper);cursor:pointer;font-weight:700;font-size:.9rem}
+.grpHead .cnt{margin-left:auto;font-weight:600;font-size:.76rem;color:var(--sub)}
+.grpBody{padding:12px 14px;display:none}
+.grpBox.open .grpBody{display:block}
+.subjRow{margin-bottom:8px}
+.subjRow .lb{font-size:.72rem;font-weight:700;color:var(--sub);margin-bottom:4px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:99px;border:1px solid var(--line);background:var(--panel);font-size:.8rem;font-weight:600;color:var(--sub);cursor:pointer;user-select:none;transition:all .12s}
+.chip:hover{border-color:var(--pri)}
+.chip.onx{border-color:var(--pri);background:#EEF2FF;color:var(--pri)}
+.chip.auto::after{content:"자동";font-size:.6rem;background:var(--green);color:#fff;padding:1px 5px;border-radius:99px;margin-left:2px}
+.chip .x{color:var(--danger);font-weight:700;margin-left:2px}
+
+/* 묶음 편집 */
+.kmCard{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--panel)}
+.kmHead{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.kmHead input,.kmHead select{padding:6px 8px;border:1px solid var(--line);border-radius:7px;font:inherit;font-size:.82rem}
+.kmHead .lbl{width:150px}
+.kmHead .pickN{width:64px}
+
+/* 계열/학과 */
+.trackChips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.fieldGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.fieldCard{border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;background:var(--panel);transition:all .12s;position:relative}
+.fieldCard:hover{border-color:var(--pri)}
+.fieldCard.sel{border-color:var(--pri);background:#EEF2FF;box-shadow:0 0 0 1px var(--pri) inset}
+.fieldCard b{font-size:.92rem}
+.fieldCard .uni{font-size:.72rem;color:var(--sub);margin-top:5px;line-height:1.5;max-height:52px;overflow:hidden}
+.fieldCard .authTag{position:absolute;top:10px;right:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;padding:8px 14px;font:inherit;font-size:.82rem;font-weight:600;color:var(--sub);cursor:pointer}
+.seg button.onx{background:var(--ink);color:#fff}
+
+/* 결과 */
+.recRow{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer;background:var(--panel)}
+.recRow.pick{border-color:var(--green);background:#F2FBF6}
+.recRow .mk{font-weight:700;color:var(--line);text-align:center}
+.recRow.pick .mk{color:var(--green)}
+.recRow .why{font-size:.76rem;color:var(--sub)}
+.recRow.pick .why{color:var(--green)}
+.covRow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:.86rem}
+.covRow:last-child{border-bottom:0}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th{font-size:.72rem;color:var(--sub);font-weight:600;text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+footer{max-width:1080px;margin:0 auto;padding:16px 20px;color:var(--sub);font-size:.76rem;border-top:1px solid var(--line)}
+.fld{margin-top:14px}
+.fld>label{display:block;font-size:.8rem;font-weight:600;color:var(--sub);margin-bottom:5px}
+.fld input[type=text],.fld input[type=search]{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;font:inherit}
+.navBtns{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+@media(max-width:640px){ .fieldGrid{grid-template-columns:1fr} .steps{gap:6px} .sArrow{display:none} }
+@media print{
+  header,.steps,.navBtns,#sec1,#sec2,.noprint,footer .np{display:none!important}
+  body{background:#fff} main{padding:0} section{display:none} #sec3{display:block!important}
+  .card{border-color:#bbb;break-inside:avoid}
+  .recRow{cursor:default}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hwrap">
+    <div class="logo">
+      <svg width="34" height="30" viewBox="0 0 44 30">
+        <rect x="4" y="16" width="8" height="10" rx="2" fill="#2D5BFF"/>
+        <rect x="16" y="9" width="8" height="17" rx="2" fill="#F59E0B"/>
+        <rect x="28" y="2" width="8" height="24" rx="2" fill="#178A4C"/>
+      </svg>
+      <div class="nm">학생부 로드맵<small>편제표 기반 선택과목 추천 · 브라우저 단독 실행</small></div>
+    </div>
+    <span class="tag" style="margin-left:auto">서버·계정 불필요 — 올린 파일은 어디에도 전송되지 않습니다</span>
+  </div>
+</header>
+
+<main>
+
+<div class="steps" id="steps">
+  <span class="step now" data-s="1"><span class="n">1</span>편제표 입력</span><span class="sArrow"></span>
+  <span class="step" data-s="2"><span class="n">2</span>희망 계열·학과</span><span class="sArrow"></span>
+  <span class="step" data-s="3"><span class="n">3</span>추천 결과</span>
+</div>
+
+<!-- ═══════ STEP 1 : 편제표 ═══════ -->
+<section id="sec1" class="on">
+  <h2>① 학교 편제표 올리기</h2>
+  <p class="lede">학교 홈페이지·학교알리미의 <b>교육과정 편제표</b>(PDF 또는 사진)를 올리면, 2022 개정 교육과정 과목 사전과 대조해 개설 과목을 자동으로 찾아냅니다. 파일은 기기 밖으로 나가지 않습니다.</p>
+
+  <div class="drop" id="drop" role="button" tabindex="0">
+    <b>편제표 PDF 또는 사진을 끌어다 놓거나 클릭하여 선택</b>
+    <p class="muted small" style="margin-top:6px">PDF 권장(가장 정확) · 사진(JPG/PNG)은 무료 OCR로 읽어 다소 느립니다</p>
+    <input type="file" id="file" accept="application/pdf,image/*" hidden>
+  </div>
+  <div class="status" id="upStatus"></div>
+
+  <div class="orRow">또는</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn" id="manualBtn">파일 없이 직접 체크하기</button>
+    <button class="btn" id="demoBtn">예시 편제표로 체험하기</button>
+    <button class="btn" id="loadJsonBtn">저장본(.json) 불러오기</button>
+    <input type="file" id="jsonFile" accept="application/json" hidden>
+  </div>
+
+  <!-- 검수/편집 -->
+  <div id="builder" style="display:none;margin-top:22px">
+    <div class="card" style="margin-bottom:14px;border-left:3px solid var(--pri)">
+      <b>개설 과목 확인 <span class="tag blue" id="offCount">0과목</span></b>
+      <p class="small muted" style="margin-top:4px">자동 감지된 과목은 <span class="tag green" style="font-size:.68rem">자동</span> 표시가 붙습니다. 편제표와 대조해서 <b>빠진 과목은 클릭해 켜고, 잘못 잡힌 과목은 다시 클릭해 꺼 주세요.</b> 파란색 = 이 학교에 개설.</p>
+    </div>
+    <div id="dictWrap"></div>
+
+    <div class="card" style="margin-top:14px">
+      <b>학교에만 있는 과목 추가</b> <span class="muted small">(고시 외 과목·공동교육과정 등)</span>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <input type="text" id="customName" placeholder="과목명 입력" style="flex:1;min-width:180px;padding:9px;border:1px solid var(--line);border-radius:8px;font:inherit">
+        <button class="btn sm" id="customAdd">추가</button>
+      </div>
+      <div class="chips" id="customChips" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <b>선택 묶음(택N) 구성 <span class="tag amber">선택사항</span></b>
+        <button class="btn sm" id="kmAdd">+ 묶음 추가</button>
+      </div>
+      <p class="small muted" style="margin-top:4px">편제표에 "다음 중 택2"처럼 묶음(칸막이)이 있으면 그대로 만들어 주세요. 묶음별로 정확히 택N 추천이 나옵니다. 건너뛰면 전체 과목에서 우선순위만 추천합니다.</p>
+      <div id="kmList" style="margin-top:10px"></div>
+    </div>
+
+    <div class="navBtns">
+      <button class="btn pri" id="to2">다음 → 희망 계열·학과 선택</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ STEP 2 : 계열/학과 ═══════ -->
+<section id="sec2">
+  <h2>② 희망 계열·학과 선택</h2>
+  <p class="lede">대학 공식 자료 기반 권장과목 DB에서 희망 모집단위를 <b>최대 3개</b> 고르세요. 자료 출처를 바꿔 비교할 수 있습니다.</p>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+    <span class="small muted"><b>권장과목 기준</b></span>
+    <div class="seg" id="authSeg">
+      <button data-a="all" class="onx">전체</button>
+      <button data-a="daegyohyup">대교협 2028 (전 계열)</button>
+      <button data-a="five">5개대학 공동연구 (자연·이공)</button>
+    </div>
+  </div>
+
+  <div class="trackChips" id="trackChips"></div>
+  <div class="fld" style="margin:0 0 14px">
+    <input type="search" id="fieldSearch" placeholder="키워드 검색 — 예: 반도체, 간호, 심리, AI, 경영…">
+  </div>
+  <div class="fieldGrid" id="fieldGrid"></div>
+
+  <div class="card" style="margin-top:16px" id="trackBox">
+    <b>계열 성향</b> <span class="small muted">— 선택한 학과로 자동 판정, 필요하면 바꿀 수 있습니다</span>
+    <div class="chips" style="margin-top:8px" id="trackSel">
+      <span class="chip" data-tr="stem">이공계</span>
+      <span class="chip" data-tr="humanities">인문·사회계</span>
+      <span class="chip" data-tr="neutral">미정·공통</span>
+    </div>
+  </div>
+
+  <div class="navBtns">
+    <button class="btn" id="back1">← 편제표 수정</button>
+    <button class="btn pri" id="runBtn">추천 실행 →</button>
+  </div>
+  <div class="status" id="s2Status"></div>
+</section>
+
+<!-- ═══════ STEP 3 : 결과 ═══════ -->
+<section id="sec3">
+  <h2>③ 추천 결과</h2>
+  <p class="lede" id="resLede"></p>
+  <div id="resOut"></div>
+  <div class="navBtns noprint">
+    <button class="btn" id="back2">← 학과 다시 선택</button>
+    <button class="btn ok" id="printBtn">인쇄 / PDF 저장</button>
+    <button class="btn" id="saveJsonBtn">구성 저장(.json)</button>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  학생부 로드맵 · 정적 단일 파일 웹앱 — 권장과목 출처: 한국대학교육협의회 「2028 대입 모집단위별 반영·권장과목 자료집」(16개 대표 모집단위), 「2022 5개대학(경희·고려·성균관·연세·중앙) 공동연구」(자연계 14분야, 2022 개정 과목명으로 변환 적용). 추천은 교과 이수 적합도 기준이며 합격 가능성 예측이 아닙니다. <span class="np">업로드한 편제표는 브라우저 안에서만 처리되며 외부로 전송되지 않습니다.</span>
+</footer>
+
+<script>
+/* ═══════════════ 1. 2022 개정 교육과정 과목 사전 ═══════════════ */
+/* t: stem(이공) / hum(인문) / neu(중립) — 계열 연계 판단용 */
+const DICT = [
+ {g:"국어", rows:[
+  ["공통",[["공통국어1","neu"],["공통국어2","neu"]]],
+  ["일반선택",[["화법과 언어","hum"],["독서와 작문","hum"],["문학","hum"]]],
+  ["진로선택",[["주제 탐구 독서","hum"],["문학과 영상","hum"],["직무 의사소통","neu"]]],
+  ["융합선택",[["독서 토론과 글쓰기","hum"],["매체 의사소통","hum"],["언어생활 탐구","hum"]]]]},
+ {g:"수학", rows:[
+  ["공통",[["공통수학1","neu"],["공통수학2","neu"]]],
+  ["일반선택",[["대수","stem"],["미적분Ⅰ","stem"],["확률과 통계","stem"]]],
+  ["진로선택",[["미적분Ⅱ","stem"],["기하","stem"],["경제 수학","stem"],["인공지능 수학","stem"],["직무 수학","neu"]]],
+  ["융합선택",[["수학과 문화","neu"],["실용 통계","stem"],["수학과제 탐구","stem"]]]]},
+ {g:"영어", rows:[
+  ["공통",[["공통영어1","neu"],["공통영어2","neu"]]],
+  ["일반선택",[["영어Ⅰ","neu"],["영어Ⅱ","neu"],["영어 독해와 작문","neu"]]],
+  ["진로선택",[["영미 문학 읽기","hum"],["영어 발표와 토론","hum"],["심화 영어","neu"],["심화 영어 독해와 작문","neu"],["직무 영어","neu"]]],
+  ["융합선택",[["실생활 영어 회화","neu"],["미디어 영어","neu"],["세계 문화와 영어","hum"]]]]},
+ {g:"사회(역사·도덕 포함)", rows:[
+  ["공통",[["한국사1","neu"],["한국사2","neu"],["통합사회1","neu"],["통합사회2","neu"]]],
+  ["일반선택",[["세계시민과 지리","hum"],["세계사","hum"],["사회와 문화","hum"],["현대사회와 윤리","hum"]]],
+  ["진로선택",[["한국지리 탐구","hum"],["도시의 미래 탐구","hum"],["동아시아 역사 기행","hum"],["정치","hum"],["법과 사회","hum"],["경제","hum"],["윤리와 사상","hum"],["인문학과 윤리","hum"],["국제 관계의 이해","hum"]]],
+  ["융합선택",[["여행지리","hum"],["역사로 탐구하는 현대 세계","hum"],["사회문제 탐구","hum"],["금융과 경제생활","hum"],["윤리문제 탐구","hum"],["기후변화와 지속가능한 세계","neu"]]]]},
+ {g:"과학", rows:[
+  ["공통",[["통합과학1","neu"],["통합과학2","neu"],["과학탐구실험1","neu"],["과학탐구실험2","neu"]]],
+  ["일반선택",[["물리학","stem"],["화학","stem"],["생명과학","stem"],["지구과학","stem"]]],
+  ["진로선택",[["역학과 에너지","stem"],["전자기와 양자","stem"],["물질과 에너지","stem"],["화학 반응의 세계","stem"],["세포와 물질대사","stem"],["생물의 유전","stem"],["지구시스템과학","stem"],["행성우주과학","stem"]]],
+  ["융합선택",[["과학의 역사와 문화","neu"],["기후변화와 환경생태","stem"],["융합과학 탐구","stem"]]]]},
+ {g:"기술·가정 / 정보", rows:[
+  ["일반선택",[["기술·가정","neu"],["정보","stem"]]],
+  ["진로선택",[["로봇과 공학세계","stem"],["생활과학 탐구","neu"],["인공지능 기초","stem"],["데이터 과학","stem"]]],
+  ["융합선택",[["창의 공학 설계","stem"],["지식 재산 일반","neu"],["생애 설계와 자립","neu"],["아동발달과 부모","neu"],["소프트웨어와 생활","stem"]]]]},
+ {g:"체육·예술", rows:[
+  ["일반선택",[["체육1","neu"],["체육2","neu"],["음악","neu"],["미술","neu"],["연극","hum"]]],
+  ["진로선택",[["운동과 건강","neu"],["스포츠 문화","neu"],["스포츠 과학","neu"],["음악 연주와 창작","neu"],["음악 감상과 비평","neu"],["미술 창작","neu"],["미술 감상과 비평","neu"]]],
+  ["융합선택",[["스포츠 생활1","neu"],["스포츠 생활2","neu"],["음악과 미디어","neu"],["미술과 매체","neu"]]]]},
+ {g:"제2외국어 / 한문", rows:[
+  ["일반선택",[["독일어","hum"],["프랑스어","hum"],["스페인어","hum"],["중국어","hum"],["일본어","hum"],["러시아어","hum"],["아랍어","hum"],["베트남어","hum"],["한문","hum"]]],
+  ["진로선택",[["독일어 회화","hum"],["프랑스어 회화","hum"],["스페인어 회화","hum"],["중국어 회화","hum"],["일본어 회화","hum"],["러시아어 회화","hum"],["아랍어 회화","hum"],["베트남어 회화","hum"],["심화 독일어","hum"],["심화 프랑스어","hum"],["심화 스페인어","hum"],["심화 중국어","hum"],["심화 일본어","hum"],["한문 고전 읽기","hum"]]],
+  ["융합선택",[["독일어권 문화","hum"],["프랑스어권 문화","hum"],["스페인어권 문화","hum"],["중국 문화","hum"],["일본 문화","hum"],["러시아 문화","hum"],["아랍 문화","hum"],["베트남 문화","hum"],["언어생활과 한자","hum"]]]]},
+ {g:"교양", rows:[
+  ["일반선택",[["진로와 직업","neu"],["생태와 환경","neu"],["논리와 사고","hum"],["인간과 철학","hum"],["삶과 종교","hum"],["인간과 심리","hum"],["교육의 이해","hum"],["보건","neu"]]],
+  ["융합선택",[["논술","hum"]]]]}
+];
+
+/* ═══════════════ 2. 권장과목 DB (파일 내장 · 2022 개정 과목명) ═══════════════
+   출처A "대교협" = 한국대학교육협의회 2028 자료집 · 대표 모집단위 16
+   출처B "5개대학" = 2022 경희·고려·성균관·연세·중앙 공동연구 자연계 14분야
+        (원문 2015 과목명 → 2022 개정 과목명 공식 대응으로 변환:
+         수학Ⅰ→대수, 수학Ⅱ→미적분Ⅰ, 미적분→미적분Ⅱ, 물리학Ⅱ→역학과 에너지·전자기와 양자,
+         화학Ⅱ→물질과 에너지·화학 반응의 세계, 생명과학Ⅱ→세포와 물질대사·생물의 유전,
+         지구과학Ⅱ→지구시스템과학·행성우주과학, Ⅰ과목→동명 일반선택) */
+const REC_DB = [
+ // ── 대교협 2028 (16) ──
+ {a:"daegyohyup",tr:"공학",nm:"기계공학",core:["미적분Ⅱ","대수","기하","물리학","화학"],rec:["확률과 통계","미적분Ⅰ"],kw:["기계","자동차","로봇","항공","우주","제조","메카트로닉스","산업"],uni:"강원대(삼척)·경북대·경희대·고려대·국민대·단국대·동아대·부산대·서울과기대·서울대·서울시립대·아주대·영남대·인하대·전남대·전북대·전주대·조선대·중앙대·충북대·한국기술교육대·한국항공대·한라대·한양대(ERICA)"},
+ {a:"daegyohyup",tr:"공학",nm:"컴퓨터공학",core:["대수","미적분Ⅰ","미적분Ⅱ","물리학"],rec:["확률과 통계","기하","화학","생명과학"],kw:["컴퓨터","소프트웨어","AI","인공지능","정보통신","ICT","SW","프로그래밍","데이터","보안","반도체"],uni:"가톨릭대·강원대(춘천)·건국대·경북대·경희대·고려대·광운대·국민대·단국대·동국대·동아대·부산대·서울과기대·서울시립대·숭실대·아주대·영남대·원광대·전남대·전북대·전주대·조선대·중앙대·충남대·충북대·한국기술교육대·한국항공대·한라대·한양대(ERICA)"},
+ {a:"daegyohyup",tr:"교육",nm:"국어교육",core:[],rec:["대수"],kw:["국어교육","국어교사","교직","교육","국문","사범"],uni:"강원대(춘천)·경북대·단국대·동국대·전남대·전북대·전주대·조선대·충남대·충북대"},
+ {a:"daegyohyup",tr:"교육",nm:"수학교육",stemEdu:1,core:["미적분Ⅱ","기하","대수","물리학"],rec:["확률과 통계","미적분Ⅰ","생명과학"],kw:["수학교육","수학교사","수학","교직","사범"],uni:"강원대(춘천)·경북대·고려대·단국대·동국대·부산대·서울대·영남대·전남대·전북대·전주대·조선대·충남대·충북대"},
+ {a:"daegyohyup",tr:"사회",nm:"경영",core:["확률과 통계","미적분Ⅰ","대수"],rec:["미적분Ⅱ","기하","물리학","화학","생명과학"],kw:["경영","경제","회계","마케팅","금융","무역","통상","상경","비즈니스"],uni:"강원대·광운대·국립한밭대·단국대·단국대(천안)·동국대·동아대·부산대·서울과기대·서울시립대·숭실대·아주대·영남대·전남대·전주대·조선대·충남대·충북대·한국기술교육대·한국항공대·한라대·한양대"},
+ {a:"daegyohyup",tr:"사회",nm:"심리",core:["확률과 통계","대수","미적분Ⅰ"],rec:["물리학"],kw:["심리","심리학","상담","사회복지","사회학","사회과학"],uni:"가톨릭대·강원대(춘천)·광운대·아주대·영남대·전남대·전주대·조선대·충남대·충북대"},
+ {a:"daegyohyup",tr:"예체능",nm:"시각디자인",core:[],rec:[],kw:["디자인","시각디자인","미술","예술","미대","산업디자인"],uni:"강원대(삼척)·국립한밭대·동아대·조선대"},
+ {a:"daegyohyup",tr:"예체능",nm:"음악",core:[],rec:[],kw:["음악","성악","기악","작곡","음대","실용음악"],uni:"동아대"},
+ {a:"daegyohyup",tr:"예체능",nm:"체육",core:[],rec:[],kw:["체육","스포츠","체대","태권도","사회체육","체육교육"],uni:"동아대·동양대·조선대"},
+ {a:"daegyohyup",tr:"의약",nm:"약학",core:["대수","확률과 통계","미적분Ⅰ","미적분Ⅱ","기하","화학","생명과학","물리학"],rec:[],kw:["약학","약대","약사","제약"],uni:"가톨릭대·강원대(춘천)·경북대·경성대·경희대·덕성여대·동국대·부산대·서울대·영남대·한양대(ERICA)"},
+ {a:"daegyohyup",tr:"의약",nm:"의예",core:["대수","미적분Ⅱ","화학","생명과학","물리학"],rec:["확률과 통계","미적분Ⅰ","기하"],kw:["의예","의학","의대","의사","간호","한의","치의","수의"],uni:"가톨릭대·강원대(춘천)·건국대(글로컬)·경북대·경희대·고려대·동아대·부산대·서울대·아주대·영남대·원광대·전남대·전북대·조선대·중앙대·충남대·충북대"},
+ {a:"daegyohyup",tr:"인문",nm:"영어영문",core:["대수"],rec:["확률과 통계"],kw:["영어","영문","영어영문학","어문","외국어","영미문학"],uni:"강원대(춘천)·광운대·단국대·단국대(천안)·덕성여대·동국대·서울시립대·숭실대·영남대·전남대·전북대·조선대·충북대"},
+ {a:"daegyohyup",tr:"인문",nm:"철학",core:["대수"],rec:["확률과 통계","미적분Ⅰ","미적분Ⅱ","기하"],kw:["철학","인문","논리","윤리학","인문학"],uni:"강원대(춘천)·건국대·단국대·단국대(천안)·동국대·동아대·서울시립대·숭실대·영남대·전남대·충남대·충북대"},
+ {a:"daegyohyup",tr:"자연",nm:"생명과학",core:["미적분Ⅰ","대수","미적분Ⅱ","화학","생명과학","물리학"],rec:["확률과 통계","기하"],kw:["생명과학","생물","바이오","생명공학","유전","생명"],uni:"가톨릭대·강원대(춘천)·경북대·경희대·고려대·동국대·동아대·부산대·서울과기대·서울대·서울시립대·숭실대·영남대·전북대·중앙대·충남대"},
+ {a:"daegyohyup",tr:"자연",nm:"물리",core:["대수","미적분Ⅱ","기하","물리학","화학"],rec:["확률과 통계","미적분Ⅰ","생명과학"],kw:["물리","물리학","물리교육","광학","반도체","에너지"],uni:"가톨릭대·강원대(춘천)·경북대·경희대·고려대·광운대·국민대·동국대·부산대·서울대·숭실대·영남대·인하대·전남대·전북대·중앙대·충남대·충북대"},
+ {a:"daegyohyup",tr:"자연",nm:"화학",core:["대수","화학","생명과학","물리학"],rec:["확률과 통계","미적분Ⅰ","미적분Ⅱ","기하"],kw:["화학","화학공학","분자","유기화학"],uni:"가톨릭대·강원대(춘천)·경기대·경북대·경희대·고려대·광운대·국민대·동국대·동아대·부산대·서울과기대·서울대·서울시립대·숭실대·아주대·영남대·전남대·전북대·중앙대·충북대"},
+ // ── 5개대학 공동연구 (14 · 자연계) ──
+ {a:"five",tr:"자연",nm:"수학·통계",core:["대수","미적분Ⅰ","미적분Ⅱ","기하"],rec:["확률과 통계"],kw:["수학","통계","데이터"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"공학",nm:"컴퓨터",core:["대수","미적분Ⅰ","미적분Ⅱ","기하"],rec:["확률과 통계","인공지능 수학"],kw:["컴퓨터","소프트웨어","AI","인공지능","데이터","보안","코딩","프로그래밍"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"공학",nm:"산업공학",core:["대수","미적분Ⅰ","미적분Ⅱ","확률과 통계"],rec:[],kw:["산업공학","경영공학","시스템"],uni:"경희대·고려대·성균관대·연세대"},
+ {a:"five",tr:"자연",nm:"물리",core:["대수","미적분Ⅰ","미적분Ⅱ","기하","물리학","역학과 에너지","전자기와 양자"],rec:["확률과 통계","화학"],kw:["물리","물리학"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"공학",nm:"기계",core:["대수","미적분Ⅰ","미적분Ⅱ","기하","물리학","역학과 에너지","전자기와 양자","화학"],rec:["확률과 통계","물질과 에너지","화학 반응의 세계"],kw:["기계","기계공학","항공","우주","항공우주","로봇","자동차"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"공학",nm:"전기·전자",core:["대수","미적분Ⅰ","미적분Ⅱ","기하","물리학","역학과 에너지","전자기와 양자","화학"],rec:["확률과 통계"],kw:["전기","전자","반도체","디스플레이","통신"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"공학",nm:"건설·건축",core:["대수","미적분Ⅰ","미적분Ⅱ"],rec:["확률과 통계","기하","물리학"],kw:["건축","건설","토목","도시","도시공학"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"자연",nm:"화학",core:["대수","미적분Ⅰ","미적분Ⅱ","화학","물질과 에너지","화학 반응의 세계"],rec:["확률과 통계","기하","물리학","역학과 에너지","전자기와 양자","생명과학"],kw:["화학","신약개발","제약","신약"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"공학",nm:"재료·화공·고분자·에너지",core:["대수","미적분Ⅰ","미적분Ⅱ","물리학","화학","물질과 에너지","화학 반응의 세계"],rec:["확률과 통계","기하","역학과 에너지","전자기와 양자"],kw:["신소재","재료","화공","화학공학","고분자","에너지","원자력","나노"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"자연",nm:"생명과학·환경·생활과학·농림",core:["대수","미적분Ⅰ","화학","생명과학","세포와 물질대사","생물의 유전"],rec:["미적분Ⅱ","확률과 통계","물질과 에너지","화학 반응의 세계"],kw:["생명","생명과학","생물","생명공학","식품","영양","환경","농림","바이오","유전"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"자연",nm:"천문·지구",core:["대수","미적분Ⅰ","미적분Ⅱ","물리학","화학","지구과학","지구시스템과학","행성우주과학"],rec:["확률과 통계","기하","역학과 에너지","전자기와 양자"],kw:["천문","지구과학","대기","우주과학","지구환경"],uni:"경희대·고려대·연세대"},
+ {a:"five",tr:"의약",nm:"의학",core:["대수","미적분Ⅰ","미적분Ⅱ","화학","생명과학","세포와 물질대사","생물의 유전"],rec:["확률과 통계","물리학","물질과 에너지","화학 반응의 세계"],kw:["의예","의학","의대","한의예","치의예","의사"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"의약",nm:"약학",core:["대수","미적분Ⅰ","미적분Ⅱ","화학","물질과 에너지","화학 반응의 세계","생명과학","세포와 물질대사","생물의 유전"],rec:["확률과 통계","기하","물리학"],kw:["약학","약사","약과학","한약"],uni:"경희대·성균관대·연세대·중앙대"},
+ {a:"five",tr:"의약",nm:"간호·보건",core:["대수","미적분Ⅰ","확률과 통계","생명과학","세포와 물질대사","생물의 유전"],rec:["미적분Ⅱ","화학","물질과 에너지","화학 반응의 세계"],kw:["간호","보건","간호학","의공","물리치료","임상"],uni:"경희대·고려대·연세대·중앙대"}
+];
+const AUTH_LBL = {daegyohyup:"대교협 2028", five:"5개대학"};
+const TRACK_OF = {공학:"stem",자연:"stem",의약:"stem",교육:"hum",사회:"hum",인문:"hum",예체능:"neu"};
+const TR_LBL = {stem:"이공계",humanities:"인문·사회계",neutral:"미정·공통"};
+
+/* ═══════════════ 3. 상태 ═══════════════ */
+const S = {
+  offered:new Set(),        // 개설 과목명
+  autoHit:new Set(),        // 자동 감지 과목명
+  custom:[],                // 직접 추가 과목명
+  groups:[],                // [{id,label,grade,pick,subjects:[]}]
+  fields:[],                // 선택된 REC_DB index
+  track:null,               // stem/humanities/neutral (수동시 manual=true)
+  manualTrack:false,
+  sel:{},                   // groupId -> Set(과목) 결과 화면 선택
+  freeSel:new Set(),        // 묶음 밖 선택
+  srcName:""                // 파일명
+};
+let gid=1;
+
+/* ═══════════════ 4. 유틸 ═══════════════ */
+const $=id=>document.getElementById(id);
+function norm(s){return String(s).replace(/[\s·ㆍ()（）]/g,"");}
+function variants(name){
+  const b=norm(name);
+  const v=new Set([b]);
+  v.add(b.replace(/Ⅰ/g,"1").replace(/Ⅱ/g,"2"));
+  v.add(b.replace(/Ⅱ/g,"II").replace(/Ⅰ/g,"I"));
+  v.add(b.replace(/Ⅱ/g,"ll").replace(/Ⅰ/g,"l"));
+  return [...v];
+}
+function allDictSubjects(){
+  const out=[];
+  DICT.forEach(G=>G.rows.forEach(([tp,arr])=>arr.forEach(([nm,t])=>out.push({nm,t,tp,g:G.g}))));
+  return out;
+}
+const ALL_SUBJ = allDictSubjects();
+const SUBJ_META = {}; ALL_SUBJ.forEach(s=>SUBJ_META[s.nm]=s);
+function metaOf(nm){ return SUBJ_META[nm] || {nm,t:"neu",tp:"학교 자체",g:"기타"}; }
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+/* ═══════════════ 5. 스텝 이동 ═══════════════ */
+function go(n){
+  [1,2,3].forEach(i=>{
+    $("sec"+i).classList.toggle("on", i===n);
+    const st=document.querySelector(`.step[data-s="${i}"]`);
+    st.className="step"+(i<n?" done":i===n?" now":"");
+  });
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".step").forEach(st=>st.addEventListener("click",()=>{
+  const n=+st.dataset.s;
+  if(n===1) go(1);
+  else if(n===2 && S.offered.size) go(2);
+  else if(n===3 && S.fields.length && S.offered.size){ runRecommend(); }
+}));
+
+/* ═══════════════ 6. 파일 업로드 & 파싱 ═══════════════ */
+const drop=$("drop"), file=$("file");
+drop.addEventListener("click",()=>file.click());
+drop.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" ")file.click();});
+["dragover","dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{
+  e.preventDefault(); drop.classList.toggle("over",ev==="dragover");
+  if(ev==="drop"&&e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+}));
+file.addEventListener("change",()=>file.files[0]&&handleFile(file.files[0]));
+
+function upMsg(cls,txt){const s=$("upStatus");s.className="status show "+cls;s.innerHTML=txt;}
+
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    const sc=document.createElement("script"); sc.src=src;
+    sc.onload=res; sc.onerror=()=>rej(new Error("라이브러리 로드 실패: "+src));
+    document.head.appendChild(sc);
+  });
+}
+
+async function handleFile(f){
+  S.srcName=f.name;
+  try{
+    let text="";
+    if(f.type==="application/pdf" || /\.pdf$/i.test(f.name)){
+      upMsg("info","PDF에서 텍스트를 추출하는 중…");
+      text = await extractPdf(f);
+      if(norm(text).length<30){
+        upMsg("info","이 PDF는 텍스트가 거의 없는 <b>스캔본</b>으로 보입니다. OCR(문자인식)로 다시 읽는 중… (30초~2분, 기기 성능에 따라 다릅니다)");
+        text = await ocrPdf(f);
+      }
+    } else if(/^image\//.test(f.type)){
+      upMsg("info","사진을 OCR(문자인식)로 읽는 중… (30초 내외)");
+      text = await ocrImage(f);
+    } else { upMsg("err","PDF 또는 이미지 파일만 지원합니다."); return; }
+    applyDetected(text, f.name);
+  }catch(err){
+    upMsg("err","읽기 실패: "+esc(err.message)+" — '파일 없이 직접 체크하기'로 진행할 수 있습니다.");
+  }
+}
+
+async function extractPdf(f){
+  if(!window.pdfjsLib){
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+  const buf=await f.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf,
+    cMapUrl:"https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/",cMapPacked:true}).promise;
+  let out="";
+  for(let p=1;p<=Math.min(pdf.numPages,20);p++){
+    const page=await pdf.getPage(p);
+    const tc=await page.getTextContent();
+    out += tc.items.map(i=>i.str).join(" ")+"\n";
+  }
+  return out;
+}
+async function renderPdfToCanvases(f){
+  const buf=await f.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf,
+    cMapUrl:"https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/",cMapPacked:true}).promise;
+  const cvs=[];
+  for(let p=1;p<=Math.min(pdf.numPages,6);p++){
+    const page=await pdf.getPage(p);
+    const vp=page.getViewport({scale:2});
+    const c=document.createElement("canvas"); c.width=vp.width; c.height=vp.height;
+    await page.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+    cvs.push(c);
+  }
+  return cvs;
+}
+async function ensureTesseract(){
+  if(!window.Tesseract) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.1.0/tesseract.min.js");
+}
+async function ocrImage(f){
+  await ensureTesseract();
+  const r=await Tesseract.recognize(f,"kor+eng",{logger:m=>{
+    if(m.status==="recognizing text") upMsg("info","문자 인식 중… "+Math.round(m.progress*100)+"%");
+  }});
+  return r.data.text;
+}
+async function ocrPdf(f){
+  await ensureTesseract();
+  const cvs=await renderPdfToCanvases(f);
+  let out="";
+  for(let i=0;i<cvs.length;i++){
+    upMsg("info",`스캔본 OCR 진행 중 — ${i+1}/${cvs.length}쪽…`);
+    const r=await Tesseract.recognize(cvs[i],"kor+eng");
+    out+=r.data.text+"\n";
+  }
+  return out;
+}
+
+function findRanges(t,nm){
+  const rs=[];
+  variants(nm).forEach(v=>{
+    let i=t.indexOf(v);
+    while(i!==-1){ rs.push([i,i+v.length]); i=t.indexOf(v,i+1); }
+  });
+  return rs;
+}
+function applyDetected(text, fname){
+  const t=norm(text);
+  S.offered.clear(); S.autoHit.clear();
+  /* 각 과목의 등장 위치를 찾고, "더 긴 다른 과목명 안에 완전히 포함된" 등장만 있는
+     과목은 오탐으로 제외 (예: '영미 문학 읽기' 속의 '문학', '공통영어1' 속의 '영어Ⅰ') */
+  const occ = ALL_SUBJ.map(s=>({nm:s.nm, len:norm(s.nm).length, rs:findRanges(t,s.nm)})).filter(o=>o.rs.length);
+  occ.forEach(o=>{
+    const ok = o.rs.some(([a,b])=> !occ.some(p=> p.nm!==o.nm && p.len>o.len &&
+      p.rs.some(([c,d])=> c<=a && b<=d)));
+    if(ok){ S.offered.add(o.nm); S.autoHit.add(o.nm); }
+  });
+  if(!S.offered.size){
+    upMsg("err",`"${esc(fname)}"에서 과목명을 찾지 못했습니다. 화질이 낮은 사진이거나 표가 이미지로 깨져 있을 수 있습니다. 아래에서 직접 체크해 주세요.`);
+  }else{
+    upMsg("ok",`"${esc(fname)}"에서 <b>${S.offered.size}개 과목</b>을 자동 감지했습니다. 아래에서 빠진 과목·오탐지를 확인해 주세요.`);
+  }
+  showBuilder();
+}
+
+/* ═══════════════ 7. 빌더(체크 UI) ═══════════════ */
+$("manualBtn").addEventListener("click",()=>{ S.srcName="직접 입력"; showBuilder(); });
+$("demoBtn").addEventListener("click",()=>{
+  S.srcName="예시 편제표(일반고 샘플)";
+  S.offered=new Set(["공통국어1","공통국어2","공통수학1","공통수학2","공통영어1","공통영어2","통합사회1","통합사회2","통합과학1","통합과학2","과학탐구실험1","과학탐구실험2","한국사1","한국사2",
+   "화법과 언어","독서와 작문","문학","대수","미적분Ⅰ","확률과 통계","영어Ⅰ","영어Ⅱ",
+   "물리학","화학","생명과학","지구과학","사회와 문화","세계사","윤리와 사상","정치","한국지리 탐구","도시의 미래 탐구",
+   "일본어","중국어","한문","인공지능 기초","정보",
+   "미적분Ⅱ","기하","경제 수학","인공지능 수학","수학과제 탐구","실용 통계",
+   "역학과 에너지","물질과 에너지","세포와 물질대사","지구시스템과학",
+   "주제 탐구 독서","문학과 영상","독서 토론과 글쓰기","영미 문학 읽기","영어 발표와 토론","미디어 영어","세계 문화와 영어",
+   "경제","법과 사회","동아시아 역사 기행","사회문제 탐구","언어생활과 한자","일본어 회화","중국어 회화"]);
+  S.autoHit=new Set(S.offered);
+  S.groups=[
+    {id:gid++,label:"2-1학기 교과간 택3",grade:2,pick:3,subjects:["물리학","화학","생명과학","지구과학","사회와 문화","세계사","윤리와 사상","정치","한국지리 탐구","도시의 미래 탐구"]},
+    {id:gid++,label:"2학년 제2외국어 택1",grade:2,pick:1,subjects:["일본어","중국어","한문","인공지능 기초"]},
+    {id:gid++,label:"2학년 수학 택1",grade:2,pick:1,subjects:["기하","경제 수학"]},
+    {id:gid++,label:"3-1학기 교과간 택2",grade:3,pick:2,subjects:["미적분Ⅱ","인공지능 수학","주제 탐구 독서","영미 문학 읽기","영어 발표와 토론","경제","법과 사회"]},
+    {id:gid++,label:"3-2학기 교과간 택2",grade:3,pick:2,subjects:["수학과제 탐구","실용 통계","역학과 에너지","물질과 에너지","세포와 물질대사","지구시스템과학","문학과 영상","사회문제 탐구"]}
+  ];
+  upMsg("ok","예시 편제표(일반고 샘플 · 묶음 5개 포함)를 불러왔습니다. 실제 사용 시에는 본인 학교 편제표를 올려 주세요.");
+  showBuilder();
+});
+
+function showBuilder(){
+  $("builder").style.display="block";
+  renderDict(); renderCustom(); renderKm(); syncCount();
+  $("builder").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function syncCount(){ $("offCount").textContent=(S.offered.size+S.custom.length)+"과목"; }
+
+function renderDict(){
+  const w=$("dictWrap"); w.innerHTML="";
+  DICT.forEach((G,gi)=>{
+    const cnt=G.rows.reduce((a,[,arr])=>a+arr.filter(([nm])=>S.offered.has(nm)).length,0);
+    const box=document.createElement("div");
+    box.className="grpBox"+(cnt?" open":"");
+    box.innerHTML=`<div class="grpHead">${esc(G.g)}<span class="cnt">${cnt}개 선택</span></div>
+      <div class="grpBody">${G.rows.map(([tp,arr])=>`
+        <div class="subjRow"><div class="lb">${tp}</div>
+        <div class="chips">${arr.map(([nm])=>{
+          const on=S.offered.has(nm), auto=S.autoHit.has(nm);
+          return `<span class="chip${on?" onx":""}${on&&auto?" auto":""}" data-nm="${esc(nm)}">${esc(nm)}</span>`;
+        }).join("")}</div></div>`).join("")}
+      </div>`;
+    box.querySelector(".grpHead").addEventListener("click",()=>box.classList.toggle("open"));
+    box.querySelectorAll(".chip").forEach(ch=>ch.addEventListener("click",()=>{
+      const nm=ch.dataset.nm;
+      if(S.offered.has(nm)){ S.offered.delete(nm); S.autoHit.delete(nm); removeFromGroups(nm); }
+      else S.offered.add(nm);
+      renderDict(); renderKm(); syncCount();
+    }));
+    w.appendChild(box);
+  });
+}
+function removeFromGroups(nm){ S.groups.forEach(g=>g.subjects=g.subjects.filter(x=>x!==nm)); }
+
+$("customAdd").addEventListener("click",addCustom);
+$("customName").addEventListener("keydown",e=>{if(e.key==="Enter")addCustom();});
+function addCustom(){
+  const v=$("customName").value.trim();
+  if(!v) return;
+  if(S.custom.includes(v)||S.offered.has(v)){ $("customName").value=""; return; }
+  S.custom.push(v); $("customName").value="";
+  renderCustom(); renderKm(); syncCount();
+}
+function renderCustom(){
+  $("customChips").innerHTML=S.custom.map(nm=>`<span class="chip onx" data-nm="${esc(nm)}">${esc(nm)}<span class="x">×</span></span>`).join("");
+  $("customChips").querySelectorAll(".chip").forEach(ch=>ch.addEventListener("click",()=>{
+    S.custom=S.custom.filter(x=>x!==ch.dataset.nm); removeFromGroups(ch.dataset.nm);
+    renderCustom(); renderKm(); syncCount();
+  }));
+}
+function offeredAll(){ return [...S.offered, ...S.custom]; }
+function electives(){ return offeredAll().filter(nm=>metaOf(nm).tp!=="공통"); }
+
+/* 묶음 편집 */
+$("kmAdd").addEventListener("click",()=>{
+  S.groups.push({id:gid++,label:"",grade:2,pick:1,subjects:[]});
+  renderKm();
+});
+function renderKm(){
+  const w=$("kmList"); w.innerHTML="";
+  const pool=electives();
+  S.groups.forEach(g=>{
+    const used=new Set(); S.groups.forEach(o=>{ if(o.id!==g.id) o.subjects.forEach(s=>used.add(s)); });
+    const card=document.createElement("div"); card.className="kmCard";
+    card.innerHTML=`<div class="kmHead">
+        <input class="lbl" type="text" placeholder="묶음 이름 (예: 2-1 교과간 택3)" value="${esc(g.label)}">
+        <select class="gr"><option value="2"${g.grade===2?" selected":""}>2학년</option><option value="3"${g.grade===3?" selected":""}>3학년</option><option value="0"${g.grade===0?" selected":""}>학년 무관</option></select>
+        <label class="small muted">택 <input class="pickN" type="number" min="1" max="9" value="${g.pick}"></label>
+        <button class="btn sm del" style="margin-left:auto;color:var(--danger)">삭제</button>
+      </div>
+      <div class="chips">${pool.map(nm=>{
+        const inThis=g.subjects.includes(nm), taken=used.has(nm);
+        if(taken&&!inThis) return "";
+        return `<span class="chip${inThis?" onx":""}" data-nm="${esc(nm)}">${esc(nm)}</span>`;
+      }).join("")||'<span class="muted small">개설 과목을 먼저 체크하세요.</span>'}</div>`;
+    card.querySelector(".lbl").addEventListener("input",e=>g.label=e.target.value);
+    card.querySelector(".gr").addEventListener("change",e=>g.grade=+e.target.value);
+    card.querySelector(".pickN").addEventListener("change",e=>{g.pick=Math.max(1,+e.target.value||1);});
+    card.querySelector(".del").addEventListener("click",()=>{S.groups=S.groups.filter(x=>x.id!==g.id);renderKm();});
+    card.querySelectorAll(".chip[data-nm]").forEach(ch=>ch.addEventListener("click",()=>{
+      const nm=ch.dataset.nm;
+      if(g.subjects.includes(nm)) g.subjects=g.subjects.filter(x=>x!==nm);
+      else g.subjects.push(nm);
+      renderKm();
+    }));
+    w.appendChild(card);
+  });
+  if(!S.groups.length) w.innerHTML='<p class="small muted">묶음이 없습니다 — 건너뛰어도 됩니다.</p>';
+}
+
+$("to2").addEventListener("click",()=>{
+  if(!offeredAll().length){ upMsg("err","개설 과목을 1개 이상 체크해 주세요."); return; }
+  renderFields(); go(2);
+});
+$("back1").addEventListener("click",()=>go(1));
+$("back2").addEventListener("click",()=>go(2));
+
+/* ═══════════════ 8. STEP2 : 계열/학과 ═══════════════ */
+let authFilter="all", trackFilter=null;
+$("authSeg").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  authFilter=b.dataset.a;
+  $("authSeg").querySelectorAll("button").forEach(x=>x.classList.toggle("onx",x===b));
+  renderFields();
+});
+$("fieldSearch").addEventListener("input",renderFields);
+
+function renderFields(){
+  // 계열 칩
+  const tracks=[...new Set(REC_DB.filter(r=>authFilter==="all"||r.a===authFilter).map(r=>r.tr))];
+  $("trackChips").innerHTML=`<span class="chip${!trackFilter?" onx":""}" data-t="">전체 계열</span>`+
+    tracks.map(t=>`<span class="chip${trackFilter===t?" onx":""}" data-t="${esc(t)}">${esc(t)}</span>`).join("");
+  $("trackChips").querySelectorAll(".chip").forEach(ch=>ch.addEventListener("click",()=>{
+    trackFilter=ch.dataset.t||null; renderFields();
+  }));
+  // 학과 카드
+  const q=norm($("fieldSearch").value||"");
+  const grid=$("fieldGrid"); grid.innerHTML="";
+  REC_DB.forEach((r,i)=>{
+    if(authFilter!=="all"&&r.a!==authFilter) return;
+    if(trackFilter&&r.tr!==trackFilter) return;
+    if(q && !norm(r.nm).includes(q) && !r.kw.some(k=>norm(k).includes(q)||q.includes(norm(k)))) return;
+    const sel=S.fields.includes(i);
+    const d=document.createElement("div");
+    d.className="fieldCard"+(sel?" sel":"");
+    d.innerHTML=`<span class="tag ${r.a==="five"?"green":"blue"} authTag">${AUTH_LBL[r.a]}</span>
+      <b>${esc(r.tr)} · ${esc(r.nm)}</b>
+      <div class="small muted" style="margin-top:3px">핵심 ${r.core.length} · 권장 ${r.rec.length}과목</div>
+      <div class="uni">${esc(r.uni)}</div>`;
+    d.addEventListener("click",()=>{
+      if(S.fields.includes(i)) S.fields=S.fields.filter(x=>x!==i);
+      else{ if(S.fields.length>=3){ s2msg("err","모집단위는 최대 3개까지 선택할 수 있습니다."); return; } S.fields.push(i); }
+      autoTrack(); renderFields();
+    });
+    grid.appendChild(d);
+  });
+  syncTrackUI();
+}
+function s2msg(cls,t){const s=$("s2Status");s.className="status show "+cls;s.textContent=t;setTimeout(()=>s.className="status",2500);}
+function autoTrack(){
+  if(S.manualTrack) return;
+  if(!S.fields.length){ S.track=null; return; }
+  let st=0,hu=0;
+  S.fields.forEach(i=>{const r=REC_DB[i];const t=r.stemEdu?"stem":(TRACK_OF[r.tr]||"neu");
+    if(t==="stem")st++; else if(t==="hum")hu++;});
+  S.track = st>hu?"stem":hu>st?"humanities":"neutral";
+}
+function syncTrackUI(){
+  $("trackSel").querySelectorAll(".chip").forEach(ch=>ch.classList.toggle("onx",ch.dataset.tr===S.track));
+}
+$("trackSel").addEventListener("click",e=>{
+  const ch=e.target.closest(".chip"); if(!ch) return;
+  S.track=ch.dataset.tr; S.manualTrack=true; syncTrackUI();
+});
+
+$("runBtn").addEventListener("click",()=>{
+  if(!S.fields.length){ s2msg("err","희망 모집단위를 1개 이상 선택해 주세요."); return; }
+  if(!S.track) S.track="neutral";
+  runRecommend();
+});
+
+/* ═══════════════ 9. 추천 엔진 ═══════════════ */
+function recSets(){
+  const core=new Set(), rec=new Set();
+  S.fields.forEach(i=>{ REC_DB[i].core.forEach(s=>core.add(s)); REC_DB[i].rec.forEach(s=>{ if(!core.has(s)) rec.add(s); }); });
+  rec.forEach(s=>{ if(core.has(s)) rec.delete(s); });
+  return {core,rec};
+}
+function subjMatch(a,b){ return norm(a)===norm(b); }
+function inSet(nm,set){ return [...set].some(r=>subjMatch(r,nm)); }
+
+function scoreSubject(nm,core,rec){
+  const m=metaOf(nm);
+  let sc=0; const why=[];
+  if(inSet(nm,core)){ sc+=5; why.push("핵심과목"); }
+  else if(inSet(nm,rec)){ sc+=3; why.push("권장과목"); }
+  const t=S.track==="stem"?"stem":S.track==="humanities"?"hum":null;
+  if(t && m.t===t){ sc+=2; why.push(TR_LBL[S.track]+" 연계"); }
+  else if(m.t==="neu") sc+=0.3;
+  if(m.tp==="진로선택"){ sc+=1; why.push("진로선택·심화"); }
+  else if(m.tp==="융합선택"){ sc+=0.5; why.push("융합·주제탐구"); }
+  return {sc,why};
+}
+
+function runRecommend(){
+  const {core,rec}=recSets();
+  // 초기 자동 선택
+  S.sel={}; S.freeSel=new Set();
+  const grouped=new Set(); S.groups.forEach(g=>g.subjects.forEach(s=>grouped.add(s)));
+  S.groups.forEach(g=>{
+    const ranked=g.subjects.map(nm=>({nm,...scoreSubject(nm,core,rec)})).sort((a,b)=>b.sc-a.sc);
+    S.sel[g.id]=new Set(ranked.slice(0,g.pick).map(r=>r.nm));
+  });
+  electives().filter(nm=>!grouped.has(nm)).forEach(nm=>{
+    const {sc}=scoreSubject(nm,core,rec);
+    if(sc>=3) S.freeSel.add(nm);   // 핵심/권장 해당 과목은 기본 선택
+  });
+  renderResult();
+  go(3);
+}
+
+function chosenAll(){
+  const s=new Set();
+  Object.values(S.sel).forEach(set=>set.forEach(x=>s.add(x)));
+  S.freeSel.forEach(x=>s.add(x));
+  offeredAll().forEach(nm=>{ if(metaOf(nm).tp==="공통") s.add(nm); }); // 공통과목은 자동 이수
+  return s;
+}
+
+function renderResult(){
+  const {core,rec}=recSets();
+  const names=S.fields.map(i=>REC_DB[i].nm+" ("+AUTH_LBL[REC_DB[i].a]+")").join(", ");
+  $("resLede").innerHTML=`편제표 <b>${esc(S.srcName||"직접 입력")}</b> · 희망 모집단위 <b>${esc(names)}</b> · 계열 성향 <b>${TR_LBL[S.track]}</b> — 과목을 클릭하면 선택을 바꿀 수 있고, 아래 점검표가 즉시 갱신됩니다.`;
+  const out=$("resOut"); out.innerHTML="";
+
+  /* A. 묶음별 추천 */
+  const grouped=new Set(); S.groups.forEach(g=>g.subjects.forEach(s=>grouped.add(s)));
+  if(S.groups.length){
+    const grades=[...new Set(S.groups.map(g=>g.grade))].sort();
+    grades.forEach(gr=>{
+      const h=document.createElement("div");
+      h.innerHTML=`<div style="margin:16px 0 8px;font-weight:700">${gr===0?"학년 무관":gr+"학년"} 선택 묶음</div>`;
+      out.appendChild(h);
+      S.groups.filter(g=>g.grade===gr).forEach(g=>out.appendChild(groupCard(g,core,rec)));
+    });
+  }
+  /* B. 묶음 밖 과목 */
+  const freePool=electives().filter(nm=>!grouped.has(nm));
+  if(freePool.length){
+    const card=document.createElement("div"); card.className="card"; card.style.marginTop="14px";
+    const ranked=freePool.map(nm=>({nm,...scoreSubject(nm,core,rec)})).sort((a,b)=>b.sc-a.sc);
+    card.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <b>${S.groups.length?"묶음 밖 개설 과목":"개설 선택과목 우선순위"}</b>
+      <span class="tag">${freePool.length}과목 · 자유 선택</span></div>
+      <div id="freeList"></div>`;
+    out.appendChild(card);
+    const list=card.querySelector("#freeList");
+    ranked.forEach(r=>list.appendChild(recRow(r, S.freeSel.has(r.nm), ()=>{
+      if(S.freeSel.has(r.nm)) S.freeSel.delete(r.nm); else S.freeSel.add(r.nm);
+      renderResult();
+    })));
+  }
+  /* C. 핵심·권장 점검 */
+  out.appendChild(coverageCard(core,rec));
+  /* D. 로드맵 요약 */
+  out.appendChild(roadmapCard());
+}
+
+function groupCard(g,core,rec){
+  const card=document.createElement("div"); card.className="card"; card.style.marginBottom="10px";
+  const ranked=g.subjects.map(nm=>({nm,...scoreSubject(nm,core,rec)})).sort((a,b)=>b.sc-a.sc);
+  const sel=S.sel[g.id]||(S.sel[g.id]=new Set());
+  card.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+    <b>${esc(g.label||"선택 묶음")}</b>
+    <span class="tag blue">택${g.pick} / 후보 ${g.subjects.length}</span>
+    <span class="tag ${sel.size===g.pick?"green":"amber"}">${sel.size}/${g.pick} 선택됨</span></div>
+    <div class="glist"></div>`;
+  const list=card.querySelector(".glist");
+  ranked.forEach(r=>list.appendChild(recRow(r, sel.has(r.nm), ()=>{
+    if(sel.has(r.nm)) sel.delete(r.nm);
+    else{ if(sel.size>=g.pick){ alert(`이 묶음은 택${g.pick}입니다. 다른 과목을 먼저 해제해 주세요.`); return; } sel.add(r.nm); }
+    renderResult();
+  })));
+  return card;
+}
+function recRow(r,picked,onClick){
+  const m=metaOf(r.nm);
+  const d=document.createElement("div");
+  d.className="recRow"+(picked?" pick":"");
+  const tTag=m.t==="stem"?'<span class="tag green">이공</span>':m.t==="hum"?'<span class="tag blue">인문</span>':'<span class="tag">공통</span>';
+  d.innerHTML=`<span class="mk">${picked?"✓":"·"}</span>
+    <div><b class="${picked?"":"muted"}">${esc(r.nm)}</b> <span class="small muted">${esc(m.tp)}</span> ${tTag}
+      <div class="why">${r.why.length?r.why.join(" · "):(r.sc>0?"보조 선택지":"희망 계열과 직접 연계 낮음")}</div></div>
+    <span class="mono small muted noprint">${r.sc.toFixed(1)}</span>`;
+  d.addEventListener("click",onClick);
+  return d;
+}
+
+function coverageCard(core,rec){
+  const chosen=chosenAll();
+  const offered=offeredAll();
+  const stat=nm=>{
+    if([...chosen].some(c=>subjMatch(c,nm))) return ["sel","선택됨 ✓","green"];
+    if(offered.some(o=>subjMatch(o,nm))) return ["off","개설(미선택)","amber"];
+    return ["no","미개설","red"];
+  };
+  const card=document.createElement("div"); card.className="card"; card.style.cssText="margin-top:16px;border-left:3px solid var(--amber)";
+  const row=(nm,kind)=>{
+    const [k,lbl,cls]=stat(nm);
+    return `<span class="tag ${cls}" title="${kind}">${esc(nm)} · ${lbl}</span>`;
+  };
+  const missing=[...core,...rec].filter(nm=>stat(nm)[0]==="no");
+  const notPicked=[...core].filter(nm=>stat(nm)[0]==="off");
+  // 분야별 충족도
+  let fieldsHtml="";
+  S.fields.forEach(i=>{
+    const r=REC_DB[i];
+    const cHit=r.core.filter(nm=>[...chosen].some(c=>subjMatch(c,nm))).length;
+    const rHit=r.rec.filter(nm=>[...chosen].some(c=>subjMatch(c,nm))).length;
+    const cr=r.core.length?cHit/r.core.length:1, rr=r.rec.length?rHit/r.rec.length:1;
+    const pct=Math.round((cr*0.7+rr*0.3)*100);
+    const col=pct>=80?"var(--green)":pct>=60?"#2563EB":pct>=40?"var(--warn)":"var(--danger)";
+    fieldsHtml+=`<div class="covRow"><div><b>${esc(r.nm)}</b> <span class="tag ${r.a==="five"?"green":"blue"}" style="font-size:.66rem">${AUTH_LBL[r.a]}</span>
+      <div class="small muted">핵심 ${cHit}/${r.core.length} · 권장 ${rHit}/${r.rec.length}</div></div>
+      <div style="text-align:right;min-width:110px"><div class="bar" style="width:100px;margin-left:auto"><i style="width:${pct}%;background:${col}"></i></div>
+      <span class="mono small" style="color:${col};font-weight:700">${pct}%</span></div></div>`;
+  });
+  card.innerHTML=`<b>핵심·권장과목 점검</b>
+    <p class="small muted" style="margin:4px 0 10px">핵심과목 = 대학이 이수를 강하게 요구/권장 · 권장과목 = 가급적 이수. 충족도 = 핵심 70% + 권장 30% 가중.</p>
+    ${core.size?`<div class="small" style="margin-bottom:8px"><b>핵심과목</b><br>${[...core].map(n=>row(n,"핵심")).join(" ")}</div>`:""}
+    ${rec.size?`<div class="small" style="margin-bottom:8px"><b>권장과목</b><br>${[...rec].map(n=>row(n,"권장")).join(" ")}</div>`:""}
+    ${!core.size&&!rec.size?`<p class="small muted">선택한 모집단위는 지정된 핵심·권장 교과가 없습니다(예체능·일부 인문). 희망 전공과 연계된 활동·실기 준비가 더 중요합니다.</p>`:""}
+    ${notPicked.length?`<div class="status err show" style="margin-top:6px">⚠ 개설돼 있는데 아직 선택하지 않은 <b>핵심과목</b>: ${notPicked.map(esc).join(", ")} — 위 목록에서 선택을 조정해 보세요.</div>`:""}
+    ${missing.length?`<div class="status info show" style="margin-top:6px">이 학교에 <b>미개설</b>: ${missing.map(esc).join(", ")} → 학교 간 <b>공동교육과정</b>, 시도교육청 <b>온라인학교</b>, 소인수과목 개설 요청으로 이수할 수 있는지 확인해 보세요.</div>`:""}
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">${fieldsHtml}</div>`;
+  return card;
+}
+
+function roadmapCard(){
+  const chosen=chosenAll();
+  const card=document.createElement("div"); card.className="card"; card.style.cssText="margin-top:16px;border-left:3px solid var(--green)";
+  const commons=offeredAll().filter(nm=>metaOf(nm).tp==="공통");
+  const byGrade={2:[],3:[],0:[]};
+  S.groups.forEach(g=>{ (S.sel[g.id]||new Set()).forEach(nm=>byGrade[g.grade in byGrade?g.grade:0].push(nm+(g.label?` <span class="muted small">(${esc(g.label)})</span>`:""))); });
+  const freeArr=[...S.freeSel];
+  card.innerHTML=`<b>나의 선택과목 로드맵</b>
+    <table style="margin-top:10px"><thead><tr><th style="width:120px">구분</th><th>과목</th></tr></thead><tbody>
+      <tr><td><b>1학년 공통</b></td><td>${commons.length?commons.map(esc).join(", "):'<span class="muted">공통과목 체크 안 됨 — 전국 공통(국어·수학·영어·통합사회·통합과학·한국사 등) 이수</span>'}</td></tr>
+      ${byGrade[2].length?`<tr><td><b>2학년 선택</b></td><td>${byGrade[2].join(", ")}</td></tr>`:""}
+      ${byGrade[3].length?`<tr><td><b>3학년 선택</b></td><td>${byGrade[3].join(", ")}</td></tr>`:""}
+      ${byGrade[0].length?`<tr><td><b>학년 무관</b></td><td>${byGrade[0].join(", ")}</td></tr>`:""}
+      ${freeArr.length?`<tr><td><b>${S.groups.length?"추가 선택":"선택 과목"}</b></td><td>${freeArr.map(esc).join(", ")}</td></tr>`:""}
+    </tbody></table>
+    <p class="small muted" style="margin-top:10px">※ 위 표를 인쇄해 담임·진로 선생님과 수강신청 전에 상의하세요. 학교 시간표(블록) 사정으로 조합이 제한될 수 있습니다.</p>`;
+  return card;
+}
+
+/* ═══════════════ 10. 저장/불러오기 · 인쇄 ═══════════════ */
+$("printBtn").addEventListener("click",()=>window.print());
+$("saveJsonBtn").addEventListener("click",()=>{
+  const data={v:1,srcName:S.srcName,offered:[...S.offered],custom:S.custom,groups:S.groups,
+    fields:S.fields,track:S.track,
+    sel:Object.fromEntries(Object.entries(S.sel).map(([k,v])=>[k,[...v]])),freeSel:[...S.freeSel]};
+  const blob=new Blob([JSON.stringify(data,null,1)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="학생부로드맵_구성.json"; a.click(); URL.revokeObjectURL(a.href);
+});
+$("loadJsonBtn").addEventListener("click",()=>$("jsonFile").click());
+$("jsonFile").addEventListener("change",async ()=>{
+  const f=$("jsonFile").files[0]; if(!f) return;
+  try{
+    const d=JSON.parse(await f.text());
+    S.srcName=d.srcName||"저장본"; S.offered=new Set(d.offered||[]); S.autoHit=new Set();
+    S.custom=d.custom||[]; S.groups=d.groups||[]; S.fields=d.fields||[]; S.track=d.track||null;
+    S.sel={}; Object.entries(d.sel||{}).forEach(([k,v])=>S.sel[k]=new Set(v));
+    S.freeSel=new Set(d.freeSel||[]);
+    gid=Math.max(1,...S.groups.map(g=>g.id+1));
+    upMsg("ok","저장본을 불러왔습니다.");
+    showBuilder();
+    if(S.fields.length){ renderFields(); renderResult(); go(3); }
+  }catch(e){ upMsg("err","저장본 읽기 실패: "+esc(e.message)); }
+});
+</script>
+</body>
+</html>

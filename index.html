@@ -250,14 +250,14 @@ footer{max-width:1080px;margin:0 auto;padding:16px 20px;color:var(--sub);font-si
 <!-- ═══════ STEP 2 : 계열/학과 ═══════ -->
 <section id="sec2">
   <h2>② 희망 계열·학과 선택</h2>
-  <p class="lede">대학 공식 자료 기반 권장과목 DB에서 희망 모집단위를 <b>최대 3개</b> 고르세요. 자료 출처를 바꿔 비교할 수 있습니다.</p>
+  <p class="lede">기준은 <b>대교협 2028 자료집(공식 지정 16개 대표 모집단위)</b>입니다. 자료집에 지정이 없는 학과는 <b>일반 참고</b>로 제공되며, 선택 시 "필수·권장 지정은 없지만 통상 도움이 되는 과목"을 안내합니다. 최대 <b>3개</b>까지 선택하세요.</p>
 
   <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
     <span class="small muted"><b>권장과목 기준</b></span>
     <div class="seg" id="authSeg">
       <button data-a="all" class="onx">전체</button>
-      <button data-a="daegyohyup">대교협 2028 (전 계열)</button>
-      <button data-a="five">5개대학 공동연구 (자연·이공)</button>
+      <button data-a="daegyohyup">대교협 2028 (공식 지정)</button>
+      <button data-a="general">일반 참고 (미지정 학과)</button>
     </div>
   </div>
 
@@ -325,7 +325,7 @@ footer{max-width:1080px;margin:0 auto;padding:16px 20px;color:var(--sub);font-si
 </div>
 
 <footer>
-  학생부 로드맵 · 정적 단일 파일 웹앱 — 권장과목 출처: 한국대학교육협의회 「2028 대입 모집단위별 반영·권장과목 자료집」(16개 대표 모집단위), 「2022 5개대학(경희·고려·성균관·연세·중앙) 공동연구」(자연계 14분야, 2022 개정 과목명으로 변환 적용). 추천은 교과 이수 적합도 기준이며 합격 가능성 예측이 아닙니다. <span class="np">업로드한 편제표는 브라우저 안에서만 처리되며 외부로 전송되지 않습니다.</span>
+  학생부 로드맵 · 정적 단일 파일 웹앱 — 공식 기준: 한국대학교육협의회 「2028 모집단위별 반영과목 및 대학별 권장과목 자료집」(대표 모집단위 16개, 2025.9.30 어디가 탑재 기준). 자료집 미지정 학과는 '일반 참고' 등급으로 통상 도움이 되는 과목을 안내하며, 이 중 일부 이공 분야는 2022 5개대학(경희·고려·성균관·연세·중앙) 공동연구(연구자료·확정 아님, 2022 개정 과목명 변환)를 참고했습니다. 추천은 교과 이수 적합도 기준이며 합격 가능성 예측이 아닙니다. <span class="np">업로드한 편제표는 브라우저 안에서만 처리되며 외부로 전송되지 않습니다.</span>
 </footer>
 
 <!-- ═══════ 사용설명서 모달 ═══════ -->
@@ -358,7 +358,7 @@ footer{max-width:1080px;margin:0 auto;padding:16px 20px;color:var(--sub);font-si
       <div class="guideStep">
         <div class="gn">3</div>
         <div class="gt"><b>희망 계열·학과 선택 → 추천 확인</b>
-          <p>대학 공식 자료(대교협 2028 · 5개대학 공동연구) 기반 모집단위를 <b>최대 3개</b> 고르면, 묶음별 추천 과목(✓과 이유), <b>핵심·권장과목 개설/미개설 점검</b>, 충족도 %, 인쇄용 로드맵 표가 나옵니다. 과목을 클릭해 바꾸면 점검표가 즉시 다시 계산됩니다.</p>
+          <p>대교협 2028 자료집(공식 지정) 기준 모집단위를 <b>최대 3개</b> 고르면, 묶음별 추천 과목(✓과 이유), <b>핵심·권장과목 개설/미개설 점검</b>, 충족도 %, 인쇄용 로드맵 표가 나옵니다. 자료집에 지정이 없는 학과는 <b>일반 참고</b> 그룹에서 고르면 "통상 도움이 되는 과목" 안내가 뜹니다. 과목을 클릭해 바꾸면 점검표가 즉시 다시 계산됩니다.</p>
         </div>
       </div>
 
@@ -435,37 +435,56 @@ const REC_DB = [
  // ── 대교협 2028 (16) ──
  {a:"daegyohyup",tr:"공학",nm:"기계공학",core:["미적분Ⅱ","대수","기하","물리학","화학"],rec:["확률과 통계","미적분Ⅰ"],kw:["기계","자동차","로봇","항공","우주","제조","메카트로닉스","산업"],uni:"강원대(삼척)·경북대·경희대·고려대·국민대·단국대·동아대·부산대·서울과기대·서울대·서울시립대·아주대·영남대·인하대·전남대·전북대·전주대·조선대·중앙대·충북대·한국기술교육대·한국항공대·한라대·한양대(ERICA)"},
  {a:"daegyohyup",tr:"공학",nm:"컴퓨터공학",core:["대수","미적분Ⅰ","미적분Ⅱ","물리학"],rec:["확률과 통계","기하","화학","생명과학"],kw:["컴퓨터","소프트웨어","AI","인공지능","정보통신","ICT","SW","프로그래밍","데이터","보안","반도체"],uni:"가톨릭대·강원대(춘천)·건국대·경북대·경희대·고려대·광운대·국민대·단국대·동국대·동아대·부산대·서울과기대·서울시립대·숭실대·아주대·영남대·원광대·전남대·전북대·전주대·조선대·중앙대·충남대·충북대·한국기술교육대·한국항공대·한라대·한양대(ERICA)"},
- {a:"daegyohyup",tr:"교육",nm:"국어교육",core:[],rec:["대수"],kw:["국어교육","국어교사","교직","교육","국문","사범"],uni:"강원대(춘천)·경북대·단국대·동국대·전남대·전북대·전주대·조선대·충남대·충북대"},
+ {a:"daegyohyup",tr:"교육",nm:"국어교육",core:[],rec:["대수"],gen:["화법과 언어","독서와 작문","문학","주제 탐구 독서","독서 토론과 글쓰기","교육의 이해"],tip:"수·과학 지정은 대수(일부 대학)뿐이지만, 국어 교과 전 영역을 깊게 이수한 이력이 사실상 핵심입니다.",kw:["국어교육","국어교사","교직","사범"],uni:"강원대(춘천)·경북대·단국대·동국대·전남대·전북대·전주대·조선대·충남대·충북대"},
  {a:"daegyohyup",tr:"교육",nm:"수학교육",stemEdu:1,core:["미적분Ⅱ","기하","대수","물리학"],rec:["확률과 통계","미적분Ⅰ","생명과학"],kw:["수학교육","수학교사","수학","교직","사범"],uni:"강원대(춘천)·경북대·고려대·단국대·동국대·부산대·서울대·영남대·전남대·전북대·전주대·조선대·충남대·충북대"},
  {a:"daegyohyup",tr:"사회",nm:"경영",core:["확률과 통계","미적분Ⅰ","대수"],rec:["미적분Ⅱ","기하","물리학","화학","생명과학"],kw:["경영","경제","회계","마케팅","금융","무역","통상","상경","비즈니스"],uni:"강원대·광운대·국립한밭대·단국대·단국대(천안)·동국대·동아대·부산대·서울과기대·서울시립대·숭실대·아주대·영남대·전남대·전주대·조선대·충남대·충북대·한국기술교육대·한국항공대·한라대·한양대"},
- {a:"daegyohyup",tr:"사회",nm:"심리",core:["확률과 통계","대수","미적분Ⅰ"],rec:["물리학"],kw:["심리","심리학","상담","사회복지","사회학","사회과학"],uni:"가톨릭대·강원대(춘천)·광운대·아주대·영남대·전남대·전주대·조선대·충남대·충북대"},
- {a:"daegyohyup",tr:"예체능",nm:"시각디자인",core:[],rec:[],kw:["디자인","시각디자인","미술","예술","미대","산업디자인"],uni:"강원대(삼척)·국립한밭대·동아대·조선대"},
- {a:"daegyohyup",tr:"예체능",nm:"음악",core:[],rec:[],kw:["음악","성악","기악","작곡","음대","실용음악"],uni:"동아대"},
- {a:"daegyohyup",tr:"예체능",nm:"체육",core:[],rec:[],kw:["체육","스포츠","체대","태권도","사회체육","체육교육"],uni:"동아대·동양대·조선대"},
+ {a:"daegyohyup",tr:"사회",nm:"심리",core:["확률과 통계","대수","미적분Ⅰ"],rec:["물리학"],gen:["인간과 심리","사회와 문화"],kw:["심리","심리학","상담","사회학","사회과학"],uni:"가톨릭대·강원대(춘천)·광운대·아주대·영남대·전남대·전주대·조선대·충남대·충북대"},
+ {a:"daegyohyup",tr:"예체능",nm:"시각디자인",core:[],rec:[],gen:["미술","미술 창작","미술 감상과 비평","미술과 매체","매체 의사소통"],tip:"수·과학 필수 지정은 없습니다. 미술 교과 심화 이수와 포트폴리오·실기 준비가 더 중요합니다.",kw:["디자인","시각디자인","미술","예술","미대","산업디자인"],uni:"강원대(삼척)·국립한밭대·동아대·조선대"},
+ {a:"daegyohyup",tr:"예체능",nm:"음악",core:[],rec:[],gen:["음악","음악 연주와 창작","음악 감상과 비평","음악과 미디어"],tip:"수·과학 필수 지정은 없습니다. 음악 교과 심화 이수와 전공 실기 준비가 더 중요합니다.",kw:["음악","성악","기악","작곡","음대","실용음악"],uni:"동아대"},
+ {a:"daegyohyup",tr:"예체능",nm:"체육",core:[],rec:[],gen:["체육1","체육2","운동과 건강","스포츠 과학","스포츠 문화","생명과학"],tip:"수·과학 필수 지정은 없습니다. 체육 교과 이수와 실기가 중심이며, 스포츠 과학·생명과학은 전공 이해에 도움이 됩니다.",kw:["체육","스포츠","체대","태권도","사회체육"],uni:"동아대·동양대·조선대"},
  {a:"daegyohyup",tr:"의약",nm:"약학",core:["대수","확률과 통계","미적분Ⅰ","미적분Ⅱ","기하","화학","생명과학","물리학"],rec:[],kw:["약학","약대","약사","제약"],uni:"가톨릭대·강원대(춘천)·경북대·경성대·경희대·덕성여대·동국대·부산대·서울대·영남대·한양대(ERICA)"},
  {a:"daegyohyup",tr:"의약",nm:"의예",core:["대수","미적분Ⅱ","화학","생명과학","물리학"],rec:["확률과 통계","미적분Ⅰ","기하"],kw:["의예","의학","의대","의사","간호","한의","치의","수의"],uni:"가톨릭대·강원대(춘천)·건국대(글로컬)·경북대·경희대·고려대·동아대·부산대·서울대·아주대·영남대·원광대·전남대·전북대·조선대·중앙대·충남대·충북대"},
- {a:"daegyohyup",tr:"인문",nm:"영어영문",core:["대수"],rec:["확률과 통계"],kw:["영어","영문","영어영문학","어문","외국어","영미문학"],uni:"강원대(춘천)·광운대·단국대·단국대(천안)·덕성여대·동국대·서울시립대·숭실대·영남대·전남대·전북대·조선대·충북대"},
- {a:"daegyohyup",tr:"인문",nm:"철학",core:["대수"],rec:["확률과 통계","미적분Ⅰ","미적분Ⅱ","기하"],kw:["철학","인문","논리","윤리학","인문학"],uni:"강원대(춘천)·건국대·단국대·단국대(천안)·동국대·동아대·서울시립대·숭실대·영남대·전남대·충남대·충북대"},
+ {a:"daegyohyup",tr:"인문",nm:"영어영문",core:["대수"],rec:["확률과 통계"],gen:["영어Ⅰ","영어Ⅱ","영어 독해와 작문","심화 영어","영미 문학 읽기","영어 발표와 토론"],tip:"수학 지정 외에, 자료집 원표 기준으로 영어 교과를 반영하는 대학이 다수입니다 — 영어 심화 이수가 사실상 핵심입니다.",kw:["영어","영문","영어영문학","어문","영미문학","통번역"],uni:"강원대(춘천)·광운대·단국대·단국대(천안)·덕성여대·동국대·서울시립대·숭실대·영남대·전남대·전북대·조선대·충북대"},
+ {a:"daegyohyup",tr:"인문",nm:"철학",core:["대수"],rec:["확률과 통계","미적분Ⅰ","미적분Ⅱ","기하"],gen:["인간과 철학","윤리와 사상","논리와 사고","현대사회와 윤리","인문학과 윤리"],kw:["철학","인문","논리","윤리학","인문학"],uni:"강원대(춘천)·건국대·단국대·단국대(천안)·동국대·동아대·서울시립대·숭실대·영남대·전남대·충남대·충북대"},
  {a:"daegyohyup",tr:"자연",nm:"생명과학",core:["미적분Ⅰ","대수","미적분Ⅱ","화학","생명과학","물리학"],rec:["확률과 통계","기하"],kw:["생명과학","생물","바이오","생명공학","유전","생명"],uni:"가톨릭대·강원대(춘천)·경북대·경희대·고려대·동국대·동아대·부산대·서울과기대·서울대·서울시립대·숭실대·영남대·전북대·중앙대·충남대"},
  {a:"daegyohyup",tr:"자연",nm:"물리",core:["대수","미적분Ⅱ","기하","물리학","화학"],rec:["확률과 통계","미적분Ⅰ","생명과학"],kw:["물리","물리학","물리교육","광학","반도체","에너지"],uni:"가톨릭대·강원대(춘천)·경북대·경희대·고려대·광운대·국민대·동국대·부산대·서울대·숭실대·영남대·인하대·전남대·전북대·중앙대·충남대·충북대"},
  {a:"daegyohyup",tr:"자연",nm:"화학",core:["대수","화학","생명과학","물리학"],rec:["확률과 통계","미적분Ⅰ","미적분Ⅱ","기하"],kw:["화학","화학공학","분자","유기화학"],uni:"가톨릭대·강원대(춘천)·경기대·경북대·경희대·고려대·광운대·국민대·동국대·동아대·부산대·서울과기대·서울대·서울시립대·숭실대·아주대·영남대·전남대·전북대·중앙대·충북대"},
- // ── 5개대학 공동연구 (14 · 자연계) ──
- {a:"five",tr:"자연",nm:"수학·통계",core:["대수","미적분Ⅰ","미적분Ⅱ","기하"],rec:["확률과 통계"],kw:["수학","통계","데이터"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"공학",nm:"컴퓨터",core:["대수","미적분Ⅰ","미적분Ⅱ","기하"],rec:["확률과 통계","인공지능 수학"],kw:["컴퓨터","소프트웨어","AI","인공지능","데이터","보안","코딩","프로그래밍"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"공학",nm:"산업공학",core:["대수","미적분Ⅰ","미적분Ⅱ","확률과 통계"],rec:[],kw:["산업공학","경영공학","시스템"],uni:"경희대·고려대·성균관대·연세대"},
- {a:"five",tr:"자연",nm:"물리",core:["대수","미적분Ⅰ","미적분Ⅱ","기하","물리학","역학과 에너지","전자기와 양자"],rec:["확률과 통계","화학"],kw:["물리","물리학"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"공학",nm:"기계",core:["대수","미적분Ⅰ","미적분Ⅱ","기하","물리학","역학과 에너지","전자기와 양자","화학"],rec:["확률과 통계","물질과 에너지","화학 반응의 세계"],kw:["기계","기계공학","항공","우주","항공우주","로봇","자동차"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"공학",nm:"전기·전자",core:["대수","미적분Ⅰ","미적분Ⅱ","기하","물리학","역학과 에너지","전자기와 양자","화학"],rec:["확률과 통계"],kw:["전기","전자","반도체","디스플레이","통신"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"공학",nm:"건설·건축",core:["대수","미적분Ⅰ","미적분Ⅱ"],rec:["확률과 통계","기하","물리학"],kw:["건축","건설","토목","도시","도시공학"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"자연",nm:"화학",core:["대수","미적분Ⅰ","미적분Ⅱ","화학","물질과 에너지","화학 반응의 세계"],rec:["확률과 통계","기하","물리학","역학과 에너지","전자기와 양자","생명과학"],kw:["화학","신약개발","제약","신약"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"공학",nm:"재료·화공·고분자·에너지",core:["대수","미적분Ⅰ","미적분Ⅱ","물리학","화학","물질과 에너지","화학 반응의 세계"],rec:["확률과 통계","기하","역학과 에너지","전자기와 양자"],kw:["신소재","재료","화공","화학공학","고분자","에너지","원자력","나노"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"자연",nm:"생명과학·환경·생활과학·농림",core:["대수","미적분Ⅰ","화학","생명과학","세포와 물질대사","생물의 유전"],rec:["미적분Ⅱ","확률과 통계","물질과 에너지","화학 반응의 세계"],kw:["생명","생명과학","생물","생명공학","식품","영양","환경","농림","바이오","유전"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"자연",nm:"천문·지구",core:["대수","미적분Ⅰ","미적분Ⅱ","물리학","화학","지구과학","지구시스템과학","행성우주과학"],rec:["확률과 통계","기하","역학과 에너지","전자기와 양자"],kw:["천문","지구과학","대기","우주과학","지구환경"],uni:"경희대·고려대·연세대"},
- {a:"five",tr:"의약",nm:"의학",core:["대수","미적분Ⅰ","미적분Ⅱ","화학","생명과학","세포와 물질대사","생물의 유전"],rec:["확률과 통계","물리학","물질과 에너지","화학 반응의 세계"],kw:["의예","의학","의대","한의예","치의예","의사"],uni:"경희대·고려대·성균관대·연세대·중앙대"},
- {a:"five",tr:"의약",nm:"약학",core:["대수","미적분Ⅰ","미적분Ⅱ","화학","물질과 에너지","화학 반응의 세계","생명과학","세포와 물질대사","생물의 유전"],rec:["확률과 통계","기하","물리학"],kw:["약학","약사","약과학","한약"],uni:"경희대·성균관대·연세대·중앙대"},
- {a:"five",tr:"의약",nm:"간호·보건",core:["대수","미적분Ⅰ","확률과 통계","생명과학","세포와 물질대사","생물의 유전"],rec:["미적분Ⅱ","화학","물질과 에너지","화학 반응의 세계"],kw:["간호","보건","간호학","의공","물리치료","임상"],uni:"경희대·고려대·연세대·중앙대"}
+ /* ── 5개대학 공동연구 고유 분야 (대교협 2028 미지정 → 연구자료 기준 '일반 참고'로 안내)
+    대교협과 중복되는 7개 분야(기계·컴퓨터·물리·화학·생명·의예·약학)는 대교협 기준으로 흡수·삭제 ── */
+ {a:"general",src5:1,tr:"자연",nm:"수학·통계",core:["대수","미적분Ⅰ","미적분Ⅱ","기하"],rec:["확률과 통계"],kw:["수학","통계","데이터사이언스","수리"]},
+ {a:"general",src5:1,tr:"공학",nm:"산업공학",core:["대수","미적분Ⅰ","미적분Ⅱ","확률과 통계"],rec:[],kw:["산업공학","경영공학","시스템공학"]},
+ {a:"general",src5:1,tr:"공학",nm:"전기·전자·반도체",core:["대수","미적분Ⅰ","미적분Ⅱ","기하","물리학","역학과 에너지","전자기와 양자","화학"],rec:["확률과 통계"],kw:["전기","전자","반도체","디스플레이","통신"]},
+ {a:"general",src5:1,tr:"공학",nm:"건설·건축·도시",core:["대수","미적분Ⅰ","미적분Ⅱ"],rec:["확률과 통계","기하","물리학"],kw:["건축","건설","토목","도시공학"]},
+ {a:"general",src5:1,tr:"공학",nm:"재료·화공·고분자·에너지",core:["대수","미적분Ⅰ","미적분Ⅱ","물리학","화학","물질과 에너지","화학 반응의 세계"],rec:["확률과 통계","기하","역학과 에너지","전자기와 양자"],kw:["신소재","재료","화공","화학공학","고분자","나노"]},
+ {a:"general",src5:1,tr:"자연",nm:"천문·지구",core:["대수","미적분Ⅰ","미적분Ⅱ","물리학","화학","지구과학","지구시스템과학","행성우주과학"],rec:["확률과 통계","기하","역학과 에너지","전자기와 양자"],kw:["천문","지구과학","대기과학","우주과학","지구환경"]},
+ {a:"general",src5:1,tr:"의약",nm:"간호",core:["대수","미적분Ⅰ","확률과 통계","생명과학","세포와 물질대사","생물의 유전"],rec:["미적분Ⅱ","화학","물질과 에너지","화학 반응의 세계"],kw:["간호","간호학","간호사"]},
+ /* ── 일반 참고 (대교협 2028 자료집 미지정 학과 · 필수/권장 지정 없음, 통상적 도움 과목 안내) ── */
+ {a:"general",tr:"인문",nm:"국어국문·문예창작",gen:["화법과 언어","독서와 작문","문학","주제 탐구 독서","문학과 영상","독서 토론과 글쓰기","언어생활 탐구"],kw:["국어국문","국문","문예창작","문창","작가","언어학"]},
+ {a:"general",tr:"인문",nm:"사학·문화재",gen:["세계사","동아시아 역사 기행","역사로 탐구하는 현대 세계","한국지리 탐구","윤리와 사상"],kw:["사학","역사","고고학","문화재","박물관"]},
+ {a:"general",tr:"인문",nm:"외국어문학(제2외국어)",gen:["중국어","일본어","프랑스어","독일어","스페인어","세계 문화와 영어","세계사"],tip:"희망하는 언어의 과목(및 회화·심화)을 중심으로 이수하고, 개설이 없으면 공동교육과정을 확인하세요.",kw:["중어중문","일어일문","불어불문","독어독문","노어","서어","아랍어","베트남어","외국어문학","통번역"]},
+ {a:"general",tr:"인문",nm:"문헌정보",gen:["독서와 작문","주제 탐구 독서","정보","데이터 과학","독서 토론과 글쓰기"],kw:["문헌정보","사서","도서관","기록관리"]},
+ {a:"general",tr:"사회",nm:"경제·국제통상",gen:["경제","대수","미적분Ⅰ","확률과 통계","금융과 경제생활","경제 수학"],kw:["경제학","국제통상","무역","세무","재무"]},
+ {a:"general",tr:"사회",nm:"법·행정·경찰",gen:["법과 사회","정치","현대사회와 윤리","사회와 문화","논리와 사고"],kw:["법학","행정","경찰","공공인재","법정","로스쿨","군사"]},
+ {a:"general",tr:"사회",nm:"정치외교·국제학",gen:["정치","국제 관계의 이해","세계사","세계시민과 지리","사회와 문화"],kw:["정치외교","국제학","국제관계","외교","북한학"]},
+ {a:"general",tr:"사회",nm:"미디어·커뮤니케이션",gen:["매체 의사소통","사회와 문화","독서와 작문","문학과 영상","사회문제 탐구"],kw:["미디어","신문방송","언론","커뮤니케이션","광고","홍보","콘텐츠"]},
+ {a:"general",tr:"사회",nm:"사회복지·아동가족",gen:["사회와 문화","현대사회와 윤리","인간과 심리","사회문제 탐구","생활과학 탐구"],kw:["사회복지","아동","가족","청소년","보육"]},
+ {a:"general",tr:"사회",nm:"지리·도시·관광",gen:["세계시민과 지리","한국지리 탐구","도시의 미래 탐구","여행지리","사회와 문화"],kw:["지리","도시계획","부동산","관광","호텔"]},
+ {a:"general",tr:"교육",nm:"초등교육(교대)",gen:["화법과 언어","독서와 작문","대수","확률과 통계","사회와 문화","생명과학","음악","미술","교육의 이해"],tip:"초등교육은 특정 과목보다 국·수·영·사·과·예체능을 고르게, 성실히 이수한 균형 잡힌 이력이 가장 중요합니다.",kw:["초등교육","교대","초등교사"]},
+ {a:"general",tr:"교육",nm:"영어교육",gen:["영어Ⅰ","영어Ⅱ","영어 독해와 작문","심화 영어","영미 문학 읽기","영어 발표와 토론","교육의 이해"],kw:["영어교육","영어교사"]},
+ {a:"general",tr:"교육",nm:"유아·특수교육",gen:["인간과 심리","교육의 이해","사회와 문화","생활과학 탐구","현대사회와 윤리"],kw:["유아교육","특수교육","보육교사"]},
+ {a:"general",tr:"교육",nm:"과학교육",stemEdu:1,gen:["물리학","화학","생명과학","지구과학","미적분Ⅰ","확률과 통계","교육의 이해"],tip:"지망 표시과목(물리·화학·생물·지구과학)의 일반+진로선택 위계 이수가 사실상 필수입니다.",kw:["과학교육","물리교육","화학교육","생물교육","지구과학교육"]},
+ {a:"general",tr:"교육",nm:"사회·역사·윤리교육",gen:["세계사","정치","사회와 문화","윤리와 사상","한국지리 탐구","교육의 이해"],kw:["역사교육","사회교육","일반사회교육","지리교육","윤리교육"]},
+ {a:"general",tr:"자연",nm:"식품·영양·조리",gen:["화학","생명과학","세포와 물질대사","기술·가정","생활과학 탐구"],kw:["식품영양","영양학","식품공학","조리","외식","제과제빵"]},
+ {a:"general",tr:"자연",nm:"농생명·산림·동물자원",gen:["생명과학","화학","지구과학","기후변화와 환경생태","세포와 물질대사"],kw:["농업","농생명","산림","원예","조경","축산","동물자원"]},
+ {a:"general",tr:"공학",nm:"환경·에너지공학",gen:["화학","물리학","지구과학","기후변화와 환경생태","물질과 에너지","미적분Ⅰ"],kw:["환경공학","에너지공학","신재생에너지","원자력공학"]},
+ {a:"general",tr:"의약",nm:"수의예",gen:["생명과학","화학","세포와 물질대사","생물의 유전","미적분Ⅰ","확률과 통계"],kw:["수의예","수의학","수의사","동물병원"]},
+ {a:"general",tr:"의약",nm:"보건계열(물리치료·임상병리 등)",gen:["생명과학","화학","물리학","확률과 통계","운동과 건강","보건"],kw:["물리치료","작업치료","임상병리","방사선","치위생","응급구조","보건행정"]},
+ {a:"general",tr:"예체능",nm:"연극·영화·공연",gen:["연극","문학과 영상","매체 의사소통","음악","미술"],kw:["연극영화","영화","공연","뮤지컬","배우","연출"]},
+ {a:"general",tr:"자유전공",nm:"자유전공·무전공",gen:["대수","미적분Ⅰ","확률과 통계","사회와 문화","생명과학","정보"],tip:"진로 확정 전이라면 이후 어느 계열로도 이어지도록 수학 위계를 끊지 말고, 사회·과학을 한 과목 이상씩 걸쳐 두는 것이 유리합니다.",kw:["자유전공","무전공","자율전공","계열모집","광역모집"]},
+ {a:"general",tr:"인문",nm:"종교·신학",gen:["윤리와 사상","인간과 철학","삶과 종교","현대사회와 윤리","세계사"],kw:["신학","종교학","불교학","기독교"]}
 ];
-const AUTH_LBL = {daegyohyup:"대교협 2028", five:"5개대학"};
+const AUTH_LBL = {daegyohyup:"대교협 2028", general:"일반 참고"};
+const SRC5_NOTE = "대교협 2028 자료집에는 지정되지 않은 분야로, 2022년 5개대학(경희·고려·성균관·연세·중앙) 공동연구가 제시한 과목을 참고로 안내합니다(연구자료 — 확정 기준 아님).";
 const TRACK_OF = {공학:"stem",자연:"stem",의약:"stem",교육:"hum",사회:"hum",인문:"hum",예체능:"neu"};
 const TR_LBL = {stem:"이공계",humanities:"인문·사회계",neutral:"미정·공통"};
 
@@ -787,12 +806,20 @@ function renderFields(){
     if(trackFilter&&r.tr!==trackFilter) return;
     if(q && !norm(r.nm).includes(q) && !r.kw.some(k=>norm(k).includes(q)||q.includes(norm(k)))) return;
     const sel=S.fields.includes(i);
+    const core=r.core||[], rc=r.rec||[], gn=r.gen||[];
     const d=document.createElement("div");
     d.className="fieldCard"+(sel?" sel":"");
-    d.innerHTML=`<span class="tag ${r.a==="five"?"green":"blue"} authTag">${AUTH_LBL[r.a]}</span>
+    const cls=r.a==="general"?"amber":"blue";
+    const meta = r.a==="general"
+      ? (r.src5 ? `공식 지정 없음 · 연구 참고 핵심 ${core.length}·권장 ${rc.length}과목` : `필수·권장 지정 없음 · 참고 ${gn.length}과목`)
+      : `핵심 ${core.length} · 권장 ${rc.length}${gn.length?` · 참고 ${gn.length}`:""}과목`;
+    const sub = r.uni ? esc(r.uni)
+      : r.src5 ? SRC5_NOTE
+      : "대교협 2028 자료집에 필수·권장과목이 지정되지 않은 모집단위 — 일반적으로 도움이 되는 과목을 안내합니다";
+    d.innerHTML=`<span class="tag ${cls} authTag">${AUTH_LBL[r.a]}</span>
       <b>${esc(r.tr)} · ${esc(r.nm)}</b>
-      <div class="small muted" style="margin-top:3px">핵심 ${r.core.length} · 권장 ${r.rec.length}과목</div>
-      <div class="uni">${esc(r.uni)}</div>`;
+      <div class="small muted" style="margin-top:3px">${meta}</div>
+      <div class="uni">${sub}</div>`;
     d.addEventListener("click",()=>{
       if(S.fields.includes(i)) S.fields=S.fields.filter(x=>x!==i);
       else{ if(S.fields.length>=3){ s2msg("err","모집단위는 최대 3개까지 선택할 수 있습니다."); return; } S.fields.push(i); }
@@ -800,6 +827,9 @@ function renderFields(){
     });
     grid.appendChild(d);
   });
+  if(!grid.children.length){
+    grid.innerHTML=`<div class="card muted small" style="grid-column:1/-1">해당 키워드의 모집단위가 없습니다. 기준을 '전체'로 바꾸거나, 가장 가까운 계열의 학과(예: 반도체→컴퓨터공학·전기전자, 항공→기계공학)를 선택해 주세요. 대교협 자료집에 없는 학과는 <b>일반 참고</b> 그룹에서 찾을 수 있습니다.</div>`;
+  }
   syncTrackUI();
 }
 function s2msg(cls,t){const s=$("s2Status");s.className="status show "+cls;s.textContent=t;setTimeout(()=>s.className="status",2500);}
@@ -827,19 +857,25 @@ $("runBtn").addEventListener("click",()=>{
 
 /* ═══════════════ 9. 추천 엔진 ═══════════════ */
 function recSets(){
-  const core=new Set(), rec=new Set();
-  S.fields.forEach(i=>{ REC_DB[i].core.forEach(s=>core.add(s)); REC_DB[i].rec.forEach(s=>{ if(!core.has(s)) rec.add(s); }); });
+  const core=new Set(), rec=new Set(), gen=new Set();
+  S.fields.forEach(i=>{
+    (REC_DB[i].core||[]).forEach(s=>core.add(s));
+    (REC_DB[i].rec||[]).forEach(s=>{ if(!core.has(s)) rec.add(s); });
+    (REC_DB[i].gen||[]).forEach(s=>{ if(!core.has(s)&&!rec.has(s)) gen.add(s); });
+  });
   rec.forEach(s=>{ if(core.has(s)) rec.delete(s); });
-  return {core,rec};
+  gen.forEach(s=>{ if(core.has(s)||rec.has(s)) gen.delete(s); });
+  return {core,rec,gen};
 }
 function subjMatch(a,b){ return norm(a)===norm(b); }
 function inSet(nm,set){ return [...set].some(r=>subjMatch(r,nm)); }
 
-function scoreSubject(nm,core,rec){
+function scoreSubject(nm,core,rec,gen){
   const m=metaOf(nm);
   let sc=0; const why=[];
   if(inSet(nm,core)){ sc+=5; why.push("핵심과목"); }
   else if(inSet(nm,rec)){ sc+=3; why.push("권장과목"); }
+  else if(gen&&inSet(nm,gen)){ sc+=2.5; why.push("참고과목(일반)"); }
   const t=S.track==="stem"?"stem":S.track==="humanities"?"hum":null;
   if(t && m.t===t){ sc+=2; why.push(TR_LBL[S.track]+" 연계"); }
   else if(m.t==="neu") sc+=0.3;
@@ -849,17 +885,17 @@ function scoreSubject(nm,core,rec){
 }
 
 function runRecommend(){
-  const {core,rec}=recSets();
+  const {core,rec,gen}=recSets();
   // 초기 자동 선택
   S.sel={}; S.freeSel=new Set();
   const grouped=new Set(); S.groups.forEach(g=>g.subjects.forEach(s=>grouped.add(s)));
   S.groups.forEach(g=>{
-    const ranked=g.subjects.map(nm=>({nm,...scoreSubject(nm,core,rec)})).sort((a,b)=>b.sc-a.sc);
+    const ranked=g.subjects.map(nm=>({nm,...scoreSubject(nm,core,rec,gen)})).sort((a,b)=>b.sc-a.sc);
     S.sel[g.id]=new Set(ranked.slice(0,g.pick).map(r=>r.nm));
   });
   electives().filter(nm=>!grouped.has(nm)).forEach(nm=>{
-    const {sc}=scoreSubject(nm,core,rec);
-    if(sc>=3) S.freeSel.add(nm);   // 핵심/권장 해당 과목은 기본 선택
+    const {sc}=scoreSubject(nm,core,rec,gen);
+    if(sc>=2.5) S.freeSel.add(nm);   // 핵심/권장/참고 해당 과목은 기본 선택
   });
   renderResult();
   go(3);
@@ -874,7 +910,7 @@ function chosenAll(){
 }
 
 function renderResult(){
-  const {core,rec}=recSets();
+  const {core,rec,gen}=recSets();
   const names=S.fields.map(i=>REC_DB[i].nm+" ("+AUTH_LBL[REC_DB[i].a]+")").join(", ");
   $("resLede").innerHTML=`편제표 <b>${esc(S.srcName||"직접 입력")}</b> · 희망 모집단위 <b>${esc(names)}</b> · 계열 성향 <b>${TR_LBL[S.track]}</b> — 과목을 클릭하면 선택을 바꿀 수 있고, 아래 점검표가 즉시 갱신됩니다.`;
   const out=$("resOut"); out.innerHTML="";
@@ -887,14 +923,14 @@ function renderResult(){
       const h=document.createElement("div");
       h.innerHTML=`<div style="margin:16px 0 8px;font-weight:700">${gr===0?"학년 무관":gr+"학년"} 선택 묶음</div>`;
       out.appendChild(h);
-      S.groups.filter(g=>g.grade===gr).forEach(g=>out.appendChild(groupCard(g,core,rec)));
+      S.groups.filter(g=>g.grade===gr).forEach(g=>out.appendChild(groupCard(g,core,rec,gen)));
     });
   }
   /* B. 묶음 밖 과목 */
   const freePool=electives().filter(nm=>!grouped.has(nm));
   if(freePool.length){
     const card=document.createElement("div"); card.className="card"; card.style.marginTop="14px";
-    const ranked=freePool.map(nm=>({nm,...scoreSubject(nm,core,rec)})).sort((a,b)=>b.sc-a.sc);
+    const ranked=freePool.map(nm=>({nm,...scoreSubject(nm,core,rec,gen)})).sort((a,b)=>b.sc-a.sc);
     card.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
       <b>${S.groups.length?"묶음 밖 개설 과목":"개설 선택과목 우선순위"}</b>
       <span class="tag">${freePool.length}과목 · 자유 선택</span></div>
@@ -907,14 +943,14 @@ function renderResult(){
     })));
   }
   /* C. 핵심·권장 점검 */
-  out.appendChild(coverageCard(core,rec));
+  out.appendChild(coverageCard(core,rec,gen));
   /* D. 로드맵 요약 */
   out.appendChild(roadmapCard());
 }
 
-function groupCard(g,core,rec){
+function groupCard(g,core,rec,gen){
   const card=document.createElement("div"); card.className="card"; card.style.marginBottom="10px";
-  const ranked=g.subjects.map(nm=>({nm,...scoreSubject(nm,core,rec)})).sort((a,b)=>b.sc-a.sc);
+  const ranked=g.subjects.map(nm=>({nm,...scoreSubject(nm,core,rec,gen)})).sort((a,b)=>b.sc-a.sc);
   const sel=S.sel[g.id]||(S.sel[g.id]=new Set());
   card.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
     <b>${esc(g.label||"선택 묶음")}</b>
@@ -942,7 +978,7 @@ function recRow(r,picked,onClick){
   return d;
 }
 
-function coverageCard(core,rec){
+function coverageCard(core,rec,gen){
   const chosen=chosenAll();
   const offered=offeredAll();
   const stat=nm=>{
@@ -956,29 +992,44 @@ function coverageCard(core,rec){
     return `<span class="tag ${cls}" title="${kind}">${esc(nm)} · ${lbl}</span>`;
   };
   const missing=[...core,...rec].filter(nm=>stat(nm)[0]==="no");
+  const missingGen=[...gen].filter(nm=>stat(nm)[0]==="no");
   const notPicked=[...core].filter(nm=>stat(nm)[0]==="off");
-  // 분야별 충족도
-  let fieldsHtml="";
+  const hit=nm=>[...chosen].some(c=>subjMatch(c,nm));
+  // 분야별 충족도 + 안내 멘트
+  let fieldsHtml="", tipsHtml="";
   S.fields.forEach(i=>{
     const r=REC_DB[i];
-    const cHit=r.core.filter(nm=>[...chosen].some(c=>subjMatch(c,nm))).length;
-    const rHit=r.rec.filter(nm=>[...chosen].some(c=>subjMatch(c,nm))).length;
-    const cr=r.core.length?cHit/r.core.length:1, rr=r.rec.length?rHit/r.rec.length:1;
-    const pct=Math.round((cr*0.7+rr*0.3)*100);
+    const co=r.core||[], rc=r.rec||[], gn=r.gen||[];
+    const cHit=co.filter(hit).length, rHit=rc.filter(hit).length, gHit=gn.filter(hit).length;
+    const cw=co.length?0.7:0, rw=rc.length?0.3:0, gw=gn.length?0.3:0, tw=cw+rw+gw;
+    const pct=tw?Math.round(((cw*(co.length?cHit/co.length:0)+rw*(rc.length?rHit/rc.length:0)+gw*(gn.length?gHit/gn.length:0))/tw)*100):100;
     const col=pct>=80?"var(--green)":pct>=60?"#2563EB":pct>=40?"var(--warn)":"var(--danger)";
-    fieldsHtml+=`<div class="covRow"><div><b>${esc(r.nm)}</b> <span class="tag ${r.a==="five"?"green":"blue"}" style="font-size:.66rem">${AUTH_LBL[r.a]}</span>
-      <div class="small muted">핵심 ${cHit}/${r.core.length} · 권장 ${rHit}/${r.rec.length}</div></div>
+    const parts=[co.length?`핵심 ${cHit}/${co.length}`:null, rc.length?`권장 ${rHit}/${rc.length}`:null, gn.length?`참고 ${gHit}/${gn.length}`:null].filter(Boolean).join(" · ");
+    fieldsHtml+=`<div class="covRow"><div><b>${esc(r.nm)}</b> <span class="tag ${r.a==="general"?"amber":"blue"}" style="font-size:.66rem">${AUTH_LBL[r.a]}</span>
+      <div class="small muted">${parts||"지정·참고과목 없음"}</div></div>
       <div style="text-align:right;min-width:110px"><div class="bar" style="width:100px;margin-left:auto"><i style="width:${pct}%;background:${col}"></i></div>
       <span class="mono small" style="color:${col};font-weight:700">${pct}%</span></div></div>`;
+    // 미지정/참고 안내 멘트
+    if(r.a==="general"){
+      const msg = r.src5 ? SRC5_NOTE
+        : `<b>${esc(r.nm)}</b>은(는) 대교협 2028 자료집에 필수 반영·권장과목이 <b>지정되지 않은</b> 모집단위입니다. 다만 일반적으로 위 참고과목 이수가 전공 이해와 학생부 연계에 도움이 됩니다.`;
+      tipsHtml+=`<div class="status info show" style="margin-top:6px">ℹ ${r.src5?`<b>${esc(r.nm)}</b> — ${msg}`:msg}${r.tip?`<br><span class="small">☞ ${esc(r.tip)}</span>`:""}</div>`;
+    } else if(r.tip){
+      tipsHtml+=`<div class="status info show" style="margin-top:6px">ℹ <b>${esc(r.nm)}</b> — ${esc(r.tip)}</div>`;
+    }
   });
-  card.innerHTML=`<b>핵심·권장과목 점검</b>
-    <p class="small muted" style="margin:4px 0 10px">핵심과목 = 대학이 이수를 강하게 요구/권장 · 권장과목 = 가급적 이수. 충족도 = 핵심 70% + 권장 30% 가중.</p>
+  card.innerHTML=`<b>핵심·권장·참고과목 점검</b>
+    <p class="small muted" style="margin:4px 0 10px">핵심 = 대학이 이수를 강하게 요구/권장(대교협 지정) · 권장 = 가급적 이수 · 참고 = 공식 지정은 없으나 통상 도움이 되는 과목. 충족도는 핵심 0.7 / 권장 0.3 / 참고 0.3 가중 평균.</p>
     ${core.size?`<div class="small" style="margin-bottom:8px"><b>핵심과목</b><br>${[...core].map(n=>row(n,"핵심")).join(" ")}</div>`:""}
     ${rec.size?`<div class="small" style="margin-bottom:8px"><b>권장과목</b><br>${[...rec].map(n=>row(n,"권장")).join(" ")}</div>`:""}
-    ${!core.size&&!rec.size?`<p class="small muted">선택한 모집단위는 지정된 핵심·권장 교과가 없습니다(예체능·일부 인문). 희망 전공과 연계된 활동·실기 준비가 더 중요합니다.</p>`:""}
+    ${gen.size?`<div class="small" style="margin-bottom:8px"><b>참고과목</b> <span class="muted">(공식 지정 아님)</span><br>${[...gen].map(n=>row(n,"참고")).join(" ")}</div>`:""}
+    ${!core.size&&!rec.size&&!gen.size?`<p class="small muted">선택한 모집단위는 지정·참고 과목이 없습니다. 희망 전공과 연계된 활동·실기 준비가 더 중요합니다.</p>`:""}
     ${notPicked.length?`<div class="status err show" style="margin-top:6px">⚠ 개설돼 있는데 아직 선택하지 않은 <b>핵심과목</b>: ${notPicked.map(esc).join(", ")} — 위 목록에서 선택을 조정해 보세요.</div>`:""}
-    ${missing.length?`<div class="status info show" style="margin-top:6px">이 학교에 <b>미개설</b>: ${missing.map(esc).join(", ")} → 학교 간 <b>공동교육과정</b>, 시도교육청 <b>온라인학교</b>, 소인수과목 개설 요청으로 이수할 수 있는지 확인해 보세요.</div>`:""}
-    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">${fieldsHtml}</div>`;
+    ${missing.length?`<div class="status info show" style="margin-top:6px">이 학교에 <b>미개설</b>(핵심·권장): ${missing.map(esc).join(", ")} → 학교 간 <b>공동교육과정</b>, 시도교육청 <b>온라인학교</b>, 소인수과목 개설 요청으로 이수할 수 있는지 확인해 보세요.</div>`:""}
+    ${missingGen.length?`<div class="status show" style="margin-top:6px;background:var(--paper);color:var(--sub)">미개설 참고과목: ${missingGen.map(esc).join(", ")} — 필수 아님, 개설 시에만 고려하면 됩니다.</div>`:""}
+    ${tipsHtml}
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">${fieldsHtml}</div>
+    <p class="small muted" style="margin-top:10px">※ 대교협 안내: 이 자료는 '필수 이수 기준'이 아닌 진로·전공 탐색 참고 자료이며, 대학은 교육과정 이수 내용 전반을 토대로 학업역량·자기주도성·성장 가능성을 종합 평가합니다. 스스로의 목표와 흥미에 맞는 주도적 과목 선택 과정이 더 중요합니다.</p>`;
   return card;
 }
 

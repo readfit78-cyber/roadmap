@@ -5,8 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#2D5BFF">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="과목선택가이드">
 <meta name="description" content="학교 교육과정 편제표를 올리고 희망 학과를 고르면, 그 학교 선택 구조에 맞춰 선택과목을 추천합니다. 서버 없이 브라우저에서만 동작합니다.">
-<title>학생부 로드맵 — 선택과목 추천</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>과목선택가이드 — 학생부 로드맵</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -123,11 +129,46 @@ footer{max-width:1080px;margin:0 auto;padding:16px 20px;color:var(--sub);font-si
 .navBtns{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
 @media(max-width:640px){ .fieldGrid{grid-template-columns:1fr} .steps{gap:6px} .sArrow{display:none} }
 @media print{
-  header,.steps,.navBtns,#sec1,#sec2,.noprint,footer .np{display:none!important}
+  header,.steps,.navBtns,#sec1,#sec2,.noprint,footer .np,#appZone{display:none!important}
   body{background:#fff} main{padding:0} section{display:none} #sec3{display:block!important}
   .card{border-color:#bbb;break-inside:avoid}
   .recRow{cursor:default}
 }
+
+/* ── 사용설명서 모달 ── */
+.ovl{position:fixed;inset:0;background:rgba(20,24,30,.5);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:34px 16px;overflow:auto}
+.ovl.open{display:flex}
+.modal{background:var(--panel);border-radius:16px;max-width:640px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.28);animation:pop .18s ease}
+@keyframes pop{from{transform:translateY(10px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.mHead{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);border-radius:16px 16px 0 0}
+.mHead b{font-size:1.05rem}
+.mClose{margin-left:auto;border:0;background:var(--paper);width:32px;height:32px;border-radius:50%;font-size:1.1rem;cursor:pointer;color:var(--sub);line-height:1}
+.mClose:hover{background:#e9ebef}
+.mBody{padding:18px 20px}
+.guideStep{display:flex;gap:12px;margin-bottom:16px}
+.guideStep .gn{flex:0 0 30px;height:30px;border-radius:50%;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+.guideStep .gt b{font-size:.95rem}
+.guideStep .gt p{font-size:.86rem;color:var(--sub);margin-top:2px}
+.tipBox{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:6px}
+.tipBox li{font-size:.84rem;margin:5px 0 5px 18px}
+.tipBox b{color:var(--ink)}
+
+/* ── 하단 앱/연결 영역 ── */
+#appZone{max-width:1080px;margin:0 auto;padding:8px 20px 4px}
+.appCard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.appCard img{width:60px;height:60px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.appCard .txt{flex:1;min-width:200px}
+.appCard .txt b{font-size:1rem}
+.appCard .txt p{font-size:.84rem;color:var(--sub);margin-top:3px}
+.iosHint{font-size:.8rem;color:var(--sub);margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 11px;display:none}
+.readBanner{margin-top:14px;border:1px solid #C8D4FF;border-radius:var(--r);overflow:hidden;background:linear-gradient(120deg,#EEF2FF,#EAF7EF)}
+.readBanner a.inner{display:flex;gap:14px;align-items:center;padding:16px 18px;text-decoration:none;color:var(--ink);flex-wrap:wrap}
+.readBanner .rlogo{flex:0 0 46px;height:46px;border-radius:12px;background:var(--pri);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;letter-spacing:-.5px}
+.readBanner .rtxt{flex:1;min-width:200px}
+.readBanner .rtxt b{font-size:.98rem;display:block}
+.readBanner .rtxt span{font-size:.83rem;color:var(--sub)}
+.readBanner .rgo{font-weight:700;color:var(--pri);white-space:nowrap}
+.readBanner .note{padding:0 18px 12px;font-size:.75rem;color:var(--sub)}
 </style>
 </head>
 <body>
@@ -135,14 +176,14 @@ footer{max-width:1080px;margin:0 auto;padding:16px 20px;color:var(--sub);font-si
 <header>
   <div class="hwrap">
     <div class="logo">
-      <svg width="34" height="30" viewBox="0 0 44 30">
-        <rect x="4" y="16" width="8" height="10" rx="2" fill="#2D5BFF"/>
-        <rect x="16" y="9" width="8" height="17" rx="2" fill="#F59E0B"/>
-        <rect x="28" y="2" width="8" height="24" rx="2" fill="#178A4C"/>
+      <svg width="40" height="28" viewBox="0 0 44 30" aria-label="교집합 로고">
+        <circle cx="17" cy="15" r="12" fill="#2D5BFF" opacity=".85"/>
+        <circle cx="27" cy="15" r="12" fill="#F59E0B" opacity=".85"/>
+        <path d="M22 4.6 A12 12 0 0 1 22 25.4 A12 12 0 0 1 22 4.6Z" fill="#178A4C"/>
       </svg>
-      <div class="nm">학생부 로드맵<small>편제표 기반 선택과목 추천 · 브라우저 단독 실행</small></div>
+      <div class="nm">과목선택가이드<small>학생부 로드맵 · 편제표 기반 선택과목 추천</small></div>
     </div>
-    <span class="tag" style="margin-left:auto">서버·계정 불필요 — 올린 파일은 어디에도 전송되지 않습니다</span>
+    <button class="btn sm" id="helpBtn" style="margin-left:auto" aria-haspopup="dialog">📖 사용설명서</button>
   </div>
 </header>
 
@@ -256,9 +297,86 @@ footer{max-width:1080px;margin:0 auto;padding:16px 20px;color:var(--sub);font-si
 
 </main>
 
+<!-- ═══════ 하단: 앱 설치 + R.E.A.D. 연결 ═══════ -->
+<div id="appZone">
+  <div class="appCard">
+    <img src="icon-192.png" alt="과목선택가이드 앱 아이콘">
+    <div class="txt">
+      <b>홈 화면에 앱으로 추가</b>
+      <p>설치하면 주소창 없이 앱처럼 열리고, 오프라인에서도 과목 체크·추천을 계속할 수 있습니다.</p>
+    </div>
+    <button class="btn pri" id="installBtn">앱 설치</button>
+    <div class="iosHint" id="iosHint" style="flex-basis:100%">
+      아이폰·아이패드는 사파리 하단 <b>공유 아이콘 ⬆️</b> → <b>'홈 화면에 추가'</b>를 누르면 설치됩니다.
+    </div>
+  </div>
+
+  <div class="readBanner">
+    <a class="inner" href="https://dokpa.vercel.app" target="_blank" rel="noopener">
+      <span class="rlogo">R.E.A.D</span>
+      <span class="rtxt">
+        <b>과목 선택은 이 가이드로, 아이 국어 독해력은 R.E.A.D.로 잡으세요</b>
+        <span>가장 정확한 처방, 가장 완벽한 학습 — R.E.A.D. 문해력 진단·약점 극복</span>
+      </span>
+      <span class="rgo">무료 진단 시작 →</span>
+    </a>
+    <div class="note">※ 위 배너는 제가 만든 무료 국어 문해력×약점극복 앱(R.E.A.D.)입니다.</div>
+  </div>
+</div>
+
 <footer>
   학생부 로드맵 · 정적 단일 파일 웹앱 — 권장과목 출처: 한국대학교육협의회 「2028 대입 모집단위별 반영·권장과목 자료집」(16개 대표 모집단위), 「2022 5개대학(경희·고려·성균관·연세·중앙) 공동연구」(자연계 14분야, 2022 개정 과목명으로 변환 적용). 추천은 교과 이수 적합도 기준이며 합격 가능성 예측이 아닙니다. <span class="np">업로드한 편제표는 브라우저 안에서만 처리되며 외부로 전송되지 않습니다.</span>
 </footer>
+
+<!-- ═══════ 사용설명서 모달 ═══════ -->
+<div class="ovl" id="helpModal" role="dialog" aria-modal="true" aria-label="사용설명서">
+  <div class="modal">
+    <div class="mHead">
+      <svg width="30" height="21" viewBox="0 0 44 30" aria-hidden="true">
+        <circle cx="17" cy="15" r="12" fill="#2D5BFF" opacity=".85"/>
+        <circle cx="27" cy="15" r="12" fill="#F59E0B" opacity=".85"/>
+        <path d="M22 4.6 A12 12 0 0 1 22 25.4 A12 12 0 0 1 22 4.6Z" fill="#178A4C"/>
+      </svg>
+      <b>과목선택가이드 사용설명서</b>
+      <button class="mClose" id="helpClose" aria-label="닫기">×</button>
+    </div>
+    <div class="mBody">
+      <p class="small muted" style="margin-bottom:16px">학교 편제표에 맞춰 희망 계열·학과의 선택과목을 추천하는 3단계 도구입니다. 올린 파일은 <b>기기 밖으로 전송되지 않습니다.</b></p>
+
+      <div class="guideStep">
+        <div class="gn">1</div>
+        <div class="gt"><b>학교 편제표 올리기</b>
+          <p>학교 홈페이지·학교알리미의 <b>교육과정 편제표</b> PDF(권장) 또는 사진을 올리면, 개설 과목을 자동으로 찾아 <span class="tag green" style="font-size:.66rem">자동</span> 표시합니다. 파일이 없으면 <b>직접 체크</b>나 <b>예시로 체험</b>도 가능합니다.</p>
+        </div>
+      </div>
+      <div class="guideStep">
+        <div class="gn">2</div>
+        <div class="gt"><b>감지 결과 검수 (중요)</b>
+          <p>자동 감지는 편제표 화질에 따라 틀릴 수 있습니다. <b>빠진 과목은 클릭해 켜고, 잘못 잡힌 과목은 다시 클릭해 끄세요.</b> 파란색 = 이 학교 개설. 고시 외 과목은 아래에서 직접 추가할 수 있습니다. 편제표에 "택2"처럼 <b>선택 묶음</b>이 있으면 그대로 만들면 묶음별 택N 추천이 나옵니다(건너뛰어도 됩니다).</p>
+        </div>
+      </div>
+      <div class="guideStep">
+        <div class="gn">3</div>
+        <div class="gt"><b>희망 계열·학과 선택 → 추천 확인</b>
+          <p>대학 공식 자료(대교협 2028 · 5개대학 공동연구) 기반 모집단위를 <b>최대 3개</b> 고르면, 묶음별 추천 과목(✓과 이유), <b>핵심·권장과목 개설/미개설 점검</b>, 충족도 %, 인쇄용 로드맵 표가 나옵니다. 과목을 클릭해 바꾸면 점검표가 즉시 다시 계산됩니다.</p>
+        </div>
+      </div>
+
+      <div class="tipBox">
+        <b class="small">알아두면 좋은 점</b>
+        <ul>
+          <li><b>미개설 핵심과목</b>은 학교 간 <b>공동교육과정</b>·시도교육청 <b>온라인학교</b>·소인수과목 개설 요청으로 이수할 수 있는지 안내합니다.</li>
+          <li>결과 화면의 <b>인쇄 / PDF 저장</b>으로 로드맵을 출력해 담임·진로 선생님과 수강신청 전 상의하세요.</li>
+          <li><b>구성 저장(.json)</b>으로 지금 상태를 저장하고, 나중에 <b>저장본 불러오기</b>로 이어서 편집할 수 있습니다.</li>
+          <li>사진 OCR은 화질에 따라 정확도가 떨어질 수 있어 <b>텍스트 PDF</b> 사용을 권장합니다.</li>
+        </ul>
+      </div>
+      <div style="text-align:right;margin-top:16px">
+        <button class="btn pri" id="helpOk">시작하기</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ═══════════════ 1. 2022 개정 교육과정 과목 사전 ═══════════════ */
@@ -908,6 +1026,50 @@ $("jsonFile").addEventListener("change",async ()=>{
     if(S.fields.length){ renderFields(); renderResult(); go(3); }
   }catch(e){ upMsg("err","저장본 읽기 실패: "+esc(e.message)); }
 });
+
+/* ═══════════════ 11. 사용설명서 모달 ═══════════════ */
+const helpModal=$("helpModal");
+function openHelp(){ helpModal.classList.add("open"); }
+function closeHelp(){ helpModal.classList.remove("open"); }
+$("helpBtn").addEventListener("click",openHelp);
+$("helpClose").addEventListener("click",closeHelp);
+$("helpOk").addEventListener("click",closeHelp);
+helpModal.addEventListener("click",e=>{ if(e.target===helpModal) closeHelp(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&helpModal.classList.contains("open")) closeHelp(); });
+
+/* ═══════════════ 12. PWA 설치 ═══════════════ */
+const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+let deferredPrompt=null;
+const installBtn=$("installBtn"), iosHint=$("iosHint");
+
+if(isStandalone){
+  installBtn.textContent="설치됨 ✓"; installBtn.disabled=true;
+}
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); deferredPrompt=e; installBtn.textContent="앱 설치"; });
+window.addEventListener("appinstalled",()=>{ installBtn.textContent="설치됨 ✓"; installBtn.disabled=true; iosHint.style.display="none"; });
+
+installBtn.addEventListener("click", async ()=>{
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const {outcome}=await deferredPrompt.userChoice;
+    if(outcome==="accepted"){ installBtn.textContent="설치됨 ✓"; installBtn.disabled=true; }
+    deferredPrompt=null;
+  } else if(isIOS){
+    iosHint.style.display="block";
+    iosHint.scrollIntoView({behavior:"smooth",block:"nearest"});
+  } else {
+    iosHint.innerHTML="브라우저 주소창의 <b>설치 아이콘</b> 또는 메뉴 → <b>'앱 설치 / 홈 화면에 추가'</b>를 눌러 설치하세요. (일부 브라우저·시크릿 모드에서는 설치가 제한됩니다.)";
+    iosHint.style.display="block";
+    iosHint.scrollIntoView({behavior:"smooth",block:"nearest"});
+  }
+});
+if(isIOS && !isStandalone) iosHint.style.display="block";
+
+/* 서비스워커 등록 (설치 가능 + 오프라인). file://·미지원 환경에서는 조용히 무시 */
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load",()=>{ navigator.serviceWorker.register("./sw.js").catch(()=>{}); });
+}
 </script>
 </body>
 </html>
